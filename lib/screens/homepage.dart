@@ -31,7 +31,7 @@ class HomePage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Toko Sinyo',
+                              'Toko Nabil',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 18,
