@@ -3,31 +3,31 @@ import 'package:hive_flutter/hive_flutter.dart'; // Gunakan ini
 part 'barang.g.dart'; // Untuk code generation
 
 @HiveType(typeId: 0)
-class Barang {
+class Barang extends HiveObject {
   @HiveField(0)
   String name;
 
   @HiveField(1)
-  int stock;
+  int buyPrice;
 
   @HiveField(2)
-  String description;
+  int sellPrice;
 
   @HiveField(3)
-  String imagePath; // Path untuk foto produk (opsional)
+  int stock;
 
   @HiveField(4)
-  int buyPrice; // Tambahkan harga beli
+  String description;
 
   @HiveField(5)
-  int sellPrice; // Tambahkan harga jual
+  String imagePath;
 
   Barang({
     required this.name,
+    required this.buyPrice,
+    required this.sellPrice,
     required this.stock,
     required this.description,
     required this.imagePath,
-    required this.buyPrice, // Tambahkan ke konstruktor
-    required this.sellPrice, // Tambahkan ke konstruktor
   });
 }

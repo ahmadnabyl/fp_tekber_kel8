@@ -187,7 +187,7 @@ class ProductCatalog extends StatelessWidget {
                                             if (deletedProduct != null) {
                                               // Simpan ke riwayat
                                               var historyBox = Hive.box<Map>('product_history');
-                                              var timestamp = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                                              var timestamp = DateTime.now().toIso8601String();
                                               historyBox.add({
                                                 'type': 'delete',
                                                 'name': deletedProduct.name,
@@ -229,6 +229,78 @@ class ProductCatalog extends StatelessWidget {
   }
 
   void _showProductForm(BuildContext context, Box<Barang> productBox, [Barang? product, int? index]) {
-    // Method untuk edit produk
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddProductPage(
+          product: product, // Kirim data produk yang akan diedit
+        ),
+      ),
+    ).then((updatedProduct) {
+      if (updatedProduct != null) {
+        // Update produk di Hive Box
+        productBox.putAt(index!, updatedProduct);
+
+        // Simpan perubahan ke riwayat
+        var historyBox = Hive.box<Map>('product_history');
+        var timestamp = DateTime.now().toIso8601String();
+        historyBox.add({
+          'type': 'edit',
+          'name': updatedProduct.name,
+          'timestamp': timestamp,
+          'change': _generateChangeLog(
+            oldProduct: product,
+            newProduct: updatedProduct,
+          ),
+          'details': {
+            'old': {
+              'name': product?.name,
+              'price': product?.sellPrice,
+              'stock': product?.stock,
+            },
+            'new': {
+              'name': updatedProduct.name,
+              'price': updatedProduct.sellPrice,
+              'stock': updatedProduct.stock,
+            },
+          },
+        });
+      }
+    });
+  }
+
+  String _generateChangeLog({Barang? oldProduct, Barang? newProduct}) {
+    if (oldProduct == null || newProduct == null) return 'Tidak ada perubahan signifikan';
+
+    List<String> changes = [];
+    final Map<String, String> propertyMapping = {
+      'name': 'Nama',
+      'buyPrice': 'Harga Beli',
+      'sellPrice': 'Harga Jual',
+      'stock': 'Stok',
+      'description': 'Deskripsi',
+    };
+
+    if (oldProduct.name != newProduct.name) {
+      changes.add('${propertyMapping['name']} diubah dari ${oldProduct.name} menjadi ${newProduct.name}');
+    }
+    if (oldProduct.buyPrice != newProduct.buyPrice) {
+      changes.add(
+        '${propertyMapping['buyPrice']} diubah dari Rp ${NumberFormat("#,##0", "id_ID").format(oldProduct.buyPrice)} menjadi Rp ${NumberFormat("#,##0", "id_ID").format(newProduct.buyPrice)}',
+      );
+    }
+    if (oldProduct.sellPrice != newProduct.sellPrice) {
+      changes.add(
+        '${propertyMapping['sellPrice']} diubah dari Rp ${NumberFormat("#,##0", "id_ID").format(oldProduct.sellPrice)} menjadi Rp ${NumberFormat("#,##0", "id_ID").format(newProduct.sellPrice)}',
+      );
+    }
+    if (oldProduct.stock != newProduct.stock) {
+      changes.add('${propertyMapping['stock']} diubah dari ${oldProduct.stock} menjadi ${newProduct.stock}');
+    }
+    if (oldProduct.description != newProduct.description) {
+      changes.add('${propertyMapping['description']} diubah dari ${oldProduct.description} menjadi ${newProduct.description}');
+    }
+
+    return changes.isNotEmpty ? changes.join(', ') : 'Tidak ada perubahan signifikan';
   }
 }

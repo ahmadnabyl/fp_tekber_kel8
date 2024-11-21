@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart'; // Untuk font Poppins
 import 'package:intl/intl.dart';
+import '../models/barang.dart';
 
 class ProductHistory extends StatefulWidget {
   @override
@@ -109,22 +110,29 @@ class _ProductHistoryState extends State<ProductHistory> {
   }
 
   Widget _buildSubtitle(Map history) {
-    String action = _getActionText(history['type'], history['change']);
+    String action = _getActionText(history['type'], history['changes']);
     String timestamp = _formatTimestamp(history['timestamp']);
 
-    // Subtitle hanya menampilkan aksi dan waktu
+  // Jika ada daftar perubahan, tambahkan detail perubahan ke subtitle
+    String changesDetail = '';
+    if (history['changes'] != null && history['changes'] is List) {
+      changesDetail = (history['changes'] as List)
+          .map((change) => '- $change')
+          .join('\n');
+    }
+
     return Text(
-      "Aksi: $action\nWaktu: $timestamp",
+      "Aksi: $action\nWaktu: $timestamp${changesDetail.isNotEmpty ? '\nPerubahan:\n$changesDetail' : ''}",
       style: GoogleFonts.poppins(),
     );
   }
 
-  String _getActionText(String type, [String? change]) {
+  String _getActionText(String type, [List<String>? changes]) {
     switch (type) {
       case 'add':
         return 'Produk Ditambahkan';
       case 'edit':
-        return change ?? 'Perubahan Tidak Diketahui';
+        return 'Produk Diedit';
       case 'delete':
         return 'Produk Dihapus';
       default:
@@ -138,19 +146,37 @@ class _ProductHistoryState extends State<ProductHistory> {
   }
 
   void editProduct({
-    required String productName,
-    required double newPrice,
-    required double oldPrice,
+    required Barang oldProduct,
+    required Barang newProduct,
   }) {
     final timestamp = DateTime.now().toIso8601String();
+    final changes = _generateChangeLog(oldProduct: oldProduct, newProduct: newProduct);
 
-    // Simpan riwayat edit, hanya mencatat perubahan harga di aksi
     historyBox.add({
       'type': 'edit',
-      'name': productName,
+      'name': newProduct.name,
       'timestamp': timestamp,
-      'change':
-          'Harga Beli diubah dari Rp ${NumberFormat('#,##0').format(oldPrice)} menjadi Rp ${NumberFormat('#,##0').format(newPrice)}',
+      'changes': changes.split(', '), // Pisahkan perubahan menjadi daftar untuk tampilan
     });
+  }
+  String _generateChangeLog({Barang? oldProduct, Barang? newProduct}) {
+    List<String> changes = [];
+
+    if (oldProduct != null && newProduct != null) {
+      if (oldProduct.name != newProduct.name) {
+        changes.add('Nama diubah dari ${oldProduct.name} menjadi ${newProduct.name}');
+      }
+      if (oldProduct.sellPrice != newProduct.sellPrice) {
+        changes.add(
+          'Harga jual diubah dari Rp ${NumberFormat("#,##0", "id_ID").format(oldProduct.sellPrice)} '
+          'menjadi Rp ${NumberFormat("#,##0", "id_ID").format(newProduct.sellPrice)}',
+        );
+      }
+      if (oldProduct.stock != newProduct.stock) {
+        changes.add('Stok diubah dari ${oldProduct.stock} menjadi ${newProduct.stock}');
+      }
+    }
+
+    return changes.isNotEmpty ? changes.join(', ') : 'Tidak ada perubahan signifikan';
   }
 }

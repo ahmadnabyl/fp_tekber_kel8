@@ -7,6 +7,10 @@ import 'package:flutter/foundation.dart' show kIsWeb; // Untuk deteksi platform 
 import '../models/barang.dart';
 
 class AddProductPage extends StatefulWidget {
+  final Barang? product; // Tambahkan parameter opsional `product`
+
+  AddProductPage({this.product}); // Konstruktor menerima produk opsional
+
   @override
   _AddProductPageState createState() => _AddProductPageState();
 }
@@ -18,6 +22,20 @@ class _AddProductPageState extends State<AddProductPage> {
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
   dynamic _image; // Untuk mendukung Web (URL) dan Mobile (File)
+
+  @override
+  void initState() {
+    super.initState();
+    // Jika `product` diberikan, isi nilai pada form
+    if (widget.product != null) {
+      _nameController.text = widget.product!.name;
+      _buyPriceController.text = widget.product!.buyPrice.toString();
+      _sellPriceController.text = widget.product!.sellPrice.toString();
+      _stockController.text = widget.product!.stock.toString();
+      _descriptionController.text = widget.product!.description;
+      _image = widget.product!.imagePath;
+    }
+  }
 
   Future<void> _pickImage() async {
     // Menggunakan ImagePicker untuk memilih gambar
@@ -50,7 +68,65 @@ class _AddProductPageState extends State<AddProductPage> {
       );
 
       final productBox = Hive.box<Barang>('products');
-      productBox.add(newProduct);
+
+      if (widget.product != null) {
+        // Jika produk sudah ada, buat log perubahan
+        Map<String, dynamic> oldValues = {
+          'name': widget.product!.name,
+          'buyPrice': widget.product!.buyPrice,
+          'sellPrice': widget.product!.sellPrice,
+          'stock': widget.product!.stock,
+          'description': widget.product!.description,
+        };
+
+        Map<String, dynamic> newValues = {
+          'name': newProduct.name,
+          'buyPrice': newProduct.buyPrice,
+          'sellPrice': newProduct.sellPrice,
+          'stock': newProduct.stock,
+          'description': newProduct.description,
+        };
+
+        // Bandingkan nilai lama dengan nilai baru untuk membuat log perubahan
+        List<String> changes = [];
+        oldValues.forEach((key, oldValue) {
+          var newValue = newValues[key];
+          if (oldValue != newValue) {
+            changes.add('$key diubah dari "$oldValue" menjadi "$newValue"');
+          }
+        });
+
+        widget.product!
+          ..name = newProduct.name
+          ..buyPrice = newProduct.buyPrice
+          ..sellPrice = newProduct.sellPrice
+          ..stock = newProduct.stock
+          ..description = newProduct.description
+          ..imagePath = newProduct.imagePath;
+        widget.product!.save();
+
+        // Simpan ke riwayat
+        final historyBox = Hive.box<Map>('product_history');
+        final timestamp = DateTime.now().toIso8601String();
+        historyBox.add({
+          'type': 'edit',
+          'name': _nameController.text,
+          'timestamp': timestamp,
+          'changes': changes,
+        });
+      } else {
+        // Jika produk baru, tambahkan ke Hive
+        productBox.add(newProduct);
+
+        // Simpan ke riwayat
+        final historyBox = Hive.box<Map>('product_history');
+        final timestamp = DateTime.now().toIso8601String();
+        historyBox.add({
+          'type': 'add',
+          'name': _nameController.text,
+          'timestamp': timestamp,
+        });
+      }
 
       Navigator.pop(context);
     }
@@ -61,7 +137,7 @@ class _AddProductPageState extends State<AddProductPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Tambah Produk",
+          widget.product != null ? "Edit Produk" : "Tambah Produk", // Judul dinamis
           style: GoogleFonts.poppins(color: Colors.white),
         ),
         backgroundColor: Color(0xFF6F92D8),
@@ -104,7 +180,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
               ),
               child: Text(
-                "Simpan Produk",
+                widget.product != null ? "Simpan Perubahan" : "Simpan Produk", // Teks dinamis
                 style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),

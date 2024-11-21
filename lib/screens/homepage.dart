@@ -111,7 +111,7 @@ class HomePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.history),
               title: Text(
-                'Riwayat Transaksi',
+                'Riwayat Produk',
                 style: GoogleFonts.poppins(),
               ),
               onTap: () {
@@ -319,7 +319,7 @@ class HomePage extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     HomeCard(
-                      title: "Riwayat Transaksi",
+                      title: "Riwayat Produk",
                       icon: Icons.history,
                       color: Color(0xFFEFF4FA),
                       onTap: () {
