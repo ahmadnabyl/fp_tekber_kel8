@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';  // Import Google Fonts
+import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
 import 'product_catalog.dart';
 import 'product_history.dart';
+import 'sales_page.dart'; // Impor halaman SalesPage
+import 'wallet_page.dart'; // Impor halaman WalletPage
+import 'pusatbantuan.dart'; // Impor halaman Pusat Bantuan
 
 class HomePage extends StatelessWidget {
   @override
@@ -31,7 +34,7 @@ class HomePage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Toko Nabil',
+                              'Toko Sinyo',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -73,7 +76,12 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         trailing: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => WalletPage()), // Navigasi ke WalletPage
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 111, 146, 216),
                             shape: RoundedRectangleBorder(
@@ -128,7 +136,10 @@ class HomePage extends StatelessWidget {
                 style: GoogleFonts.poppins(),
               ),
               onTap: () {
-                // Aksi untuk penjualan
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SalesPage()),
+                );
               },
             ),
             ListTile(
@@ -145,17 +156,17 @@ class HomePage extends StatelessWidget {
         ),
       ),
       body: Container(
-        color: Colors.white, // Mengatur latar belakang keseluruhan putih
+        color: Colors.white,
         child: Column(
           children: [
             AppBar(
-              backgroundColor: Color(0xFFF5F5F5), // Warna putih tulang
+              backgroundColor: Color(0xFFF5F5F5),
               elevation: 0,
               title: Text(
                 "Dasbor",
                 style: GoogleFonts.poppins(
-                  color: Color(0xFF6F92D8), // Warna teks
-                  fontWeight: FontWeight.w600, // Sedikit tebal
+                  color: Color(0xFF6F92D8),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               centerTitle: true,
@@ -169,9 +180,7 @@ class HomePage extends StatelessWidget {
               ),
             ),
             ClipRRect(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(0),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -194,7 +203,7 @@ class HomePage extends StatelessWidget {
                                 Text(
                                   "Halo, ",
                                   style: GoogleFonts.poppins(
-                                    color: const Color.fromARGB(255, 88, 88, 88),
+                                    color: Color.fromARGB(255, 88, 88, 88),
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -202,7 +211,7 @@ class HomePage extends StatelessWidget {
                                 Text(
                                   "Toko Sinyo!",
                                   style: GoogleFonts.poppins(
-                                    color: const Color.fromARGB(255, 88, 88, 88),
+                                    color: Color.fromARGB(255, 88, 88, 88),
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -211,7 +220,12 @@ class HomePage extends StatelessWidget {
                             ),
                             SizedBox(height: 8),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => PusatBantuan()), // Navigasi ke PusatBantuanPage
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
@@ -229,7 +243,7 @@ class HomePage extends StatelessWidget {
                         IconButton(
                           icon: Icon(
                             Icons.account_circle,
-                            color: const Color.fromARGB(255, 182, 182, 182),
+                            color: Color.fromARGB(255, 182, 182, 182),
                             size: 55,
                           ),
                           onPressed: () {},
@@ -246,14 +260,14 @@ class HomePage extends StatelessWidget {
                             Text(
                               "Saldo",
                               style: GoogleFonts.poppins(
-                                color: const Color.fromARGB(255, 32, 132, 213),
+                                color: Color.fromARGB(255, 32, 132, 213),
                                 fontSize: 14,
                               ),
                             ),
                             Text(
                               "Rp0",
                               style: GoogleFonts.poppins(
-                                color: const Color.fromARGB(255, 88, 88, 88),
+                                color: Color.fromARGB(255, 88, 88, 88),
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -261,7 +275,12 @@ class HomePage extends StatelessWidget {
                           ],
                         ),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => WalletPage()),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 111, 146, 216),
                             shape: RoundedRectangleBorder(
@@ -302,7 +321,7 @@ class HomePage extends StatelessWidget {
                         );
                       },
                       textStyle: GoogleFonts.poppins(
-                        fontSize: 14, 
+                        fontSize: 14,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
@@ -311,7 +330,12 @@ class HomePage extends StatelessWidget {
                       title: "Penjualan",
                       icon: Icons.monetization_on_outlined,
                       color: Color(0xFFEFF4FA),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SalesPage()),
+                        );
+                      },
                       textStyle: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
@@ -320,7 +344,7 @@ class HomePage extends StatelessWidget {
                     SizedBox(height: 20),
                     HomeCard(
                       title: "Riwayat Produk",
-                      icon: Icons.history,
+                      icon: Icons.history_outlined,
                       color: Color(0xFFEFF4FA),
                       onTap: () {
                         Navigator.push(
@@ -363,29 +387,25 @@ class HomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 100,
+        height: 60,
+        padding: EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              child: Icon(
-                icon,
-                size: 40,
-                color: const Color.fromARGB(255, 94, 122, 172),
-              ),
+            Icon(
+              icon,
+              color: Colors.black54,
             ),
-            Expanded(
-              child: Text(
-                title,
-                style: textStyle,
-              ),
+            SizedBox(width: 10),
+            Text(
+              title,
+              style: textStyle,
             ),
           ],
         ),

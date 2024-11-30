@@ -10,7 +10,7 @@ environment:
 dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  flutter_svg: ^2.0.0
+  flutter_svg: ^2.0.4
   intl: ^0.20.0
   flutter:
     sdk: flutter
@@ -38,4 +38,5 @@ flutter:
     - assets/susu.jpg
     - assets/beras.jpg
     - assets/logotekber.png
+    - assets/dompet.png
 
