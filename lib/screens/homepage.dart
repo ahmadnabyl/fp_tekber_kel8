@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.dashboard, color: Colors.black),
               title: Text(
                 'Dasbor',
-                style: GoogleFonts.poppins(fontSize: 17),
+                style: GoogleFonts.poppins(fontSize: 15),
               ),
               onTap: () {
                 Navigator.pop(context); // Tutup drawer
@@ -126,7 +126,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.shopping_cart, color: Colors.black),
               title: Text(
                 'Katalog Produk',
-                style: GoogleFonts.poppins(fontSize: 17),
+                style: GoogleFonts.poppins(fontSize: 15),
               ),
               onTap: () {
                 Navigator.push(
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.monetization_on, color: Colors.black),
               title: Text(
                 'Penjualan',
-                style: GoogleFonts.poppins(fontSize: 17),
+                style: GoogleFonts.poppins(fontSize: 15),
               ),
               onTap: () {
                 Navigator.push(
@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.history, color: Colors.black),
               title: Text(
                 'Riwayat Produk',
-                style: GoogleFonts.poppins(fontSize: 17),
+                style: GoogleFonts.poppins(fontSize: 15),
               ),
               onTap: () {
                 Navigator.push(
@@ -165,7 +165,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.account_balance_wallet, color: Colors.black),
               title: Text(
                 'Dompet',
-                style: GoogleFonts.poppins(fontSize: 17),
+                style: GoogleFonts.poppins(fontSize: 15),
               ),
               onTap: () {
                 Navigator.push(
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.logout, color: Colors.black),
               title: Text(
                 'Logout',
-                style: GoogleFonts.poppins(fontSize: 17),
+                style: GoogleFonts.poppins(fontSize: 15),
               ),
               onTap: () {
                 Navigator.pop(context); // Tambahkan aksi logout jika diperlukan
@@ -252,7 +252,7 @@ class _HomePageState extends State<HomePage> {
                               "Halo, Toko Sinyo!",
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontSize: 22,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -266,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                                       "Saldo",
                                       style: GoogleFonts.poppins(
                                         color: Colors.white,
-                                        fontSize: 20,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -278,7 +278,7 @@ class _HomePageState extends State<HomePage> {
                                             _isBalanceHidden ? "*****" : "Rp0",
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
-                                              fontSize: 19,
+                                              fontSize: 17,
                                             ),
                                             overflow: TextOverflow.clip,
                                           ),
@@ -334,7 +334,7 @@ class _HomePageState extends State<HomePage> {
                           "Pusat Bantuan",
                           style: GoogleFonts.poppins(
                             color: Color(0xFF4A90E2),
-                            fontSize: 17,
+                            fontSize: 14,
                           ),
                         ),
                       ),

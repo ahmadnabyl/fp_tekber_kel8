@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class KatalogProdukPage extends StatefulWidget {
-  @override
-  _KatalogProdukPageState createState() => _KatalogProdukPageState();
-}
-
-class _KatalogProdukPageState extends State<KatalogProdukPage> {
+class RiwayatProdukPage extends StatelessWidget {
   final List<Item> items = [
     Item(
-      title: "Bagaimana cara menambahkan produk baru ke katalog?",
-      description: "1. Klik fitur katalog produk pada home screen.\n"
-          "2. Pilih tombol plus untuk menambah produk.\n"
-          "3. Isi nama produk, stok, dan deskripsi produk.\n"
-          "4. Setelah informasi selesai ditambah, pilih simpan.",
+      title: "Bagaimana cara melihat riwayat produk?",
+      description: "1. Klik menu 'Riwayat Produk' di home screen.\n"
+          "2. Semua riwayat akan ditampilkan dalam urutan terbaru.\n"
+          "3. Anda dapat melihat aksi yang dilakukan pada riwayat tersebut.",
     ),
     Item(
-      title: "Bagaimana cara menghapus produk dari katalog?",
-      description: "Anda dapat menghapus produk melalui halaman 'Katalog Produk'. Pilih produk yang ingin dihapus, lalu klik ikon tempat sampah.",
+      title: "Bisakah saya menghapus riwayat produk?",
+      description:
+          "Anda dapat menghapus riwayat yang ada dengan mengklik tombol sampah jika terdapat kesalahan riwayat.",
     ),
     Item(
-      title: "Bagaimana cara memperbarui stok produk?",
-      description: "Untuk memperbarui stok produk, buka detail produk di menu 'Katalog' yang bergambar pensil, lalu edit jumlah stok sesuai kebutuhan.",
+      title: "Apakah transaksi lama otomatis terhapus?",
+      description:
+          "Tidak, transaksi lama tidak akan terhapus otomatis kecuali dihapus secara manual.",
     ),
   ];
 
@@ -30,7 +26,7 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Katalog Produk",
+          "Riwayat Transaksi",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 20,
@@ -51,8 +47,8 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFFFFFFF),
-              Color.fromARGB(255, 190, 207, 253),
+              Color(0xFFFFFFFF), // Warna putih
+              Color.fromARGB(255, 190, 207, 253), // Warna biru muda
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -74,7 +70,7 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Pertanyaan yang sering diajukan seputar produk",
+                    "Pertanyaan yang sering diajukan seputar riwayat produk",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       fontSize: 16,
@@ -96,25 +92,18 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
 class Item {
   final String title;
   final String description;
-  bool isExpanded;
 
   Item({
     required this.title,
     required this.description,
-    this.isExpanded = false,
   });
 }
 
-class DropdownItem extends StatefulWidget {
+class DropdownItem extends StatelessWidget {
   final Item item;
 
   DropdownItem({required this.item});
 
-  @override
-  _DropdownItemState createState() => _DropdownItemState();
-}
-
-class _DropdownItemState extends State<DropdownItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -132,34 +121,27 @@ class _DropdownItemState extends State<DropdownItem> {
           ),
         ],
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent, // Menghilangkan garis hitam
-        ),
-        child: ExpansionTile(
-          tilePadding: EdgeInsets.zero, // Menghapus padding bawaan
-          title: Text(
-            widget.item.title,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 14.0,
-              color: const Color(0xFF333333),
-            ),
+      child: ExpansionTile(
+        title: Text(
+          item.title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 14.0,
+            color: const Color(0xFF333333),
           ),
-          childrenPadding: EdgeInsets.zero, // Menghilangkan padding anak
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                widget.item.description,
-                style: GoogleFonts.poppins(
-                  color: Colors.grey[700],
-                  fontSize: 14.0,
-                ),
+        ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              item.description,
+              style: GoogleFonts.poppins(
+                color: Colors.grey[700],
+                fontSize: 14.0,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

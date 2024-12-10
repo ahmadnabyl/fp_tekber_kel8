@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Untuk font Poppins
-import 'katalog_produk_page.dart'; // Import halaman Katalog Produk
-import 'penjualan_page.dart'; // Import halaman Penjualan
+import 'package:google_fonts/google_fonts.dart';
+import 'katalog_produk_page.dart';
+import 'penjualan_page.dart'; 
+import 'riwayat_produk_page.dart';
+import 'dompet_page.dart';
 
 class PusatBantuan extends StatelessWidget {
   @override
@@ -26,84 +28,98 @@ class PusatBantuan extends StatelessWidget {
           },
         ),
       ),
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Warna latar belakang
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Column(
-                  children: [
-                    Text(
-                      "FAQ",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF6F92D8),
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      "Pertanyaan yang sering diajukan",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Info Umum",
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF6F92D8),
-                ),
-              ),
-              SizedBox(height: 10),
-              HelpButton(
-                icon: Icons.shopping_cart,
-                label: "Katalog Produk",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => KatalogProdukPage()),
-                  );
-                },
-              ),
-              HelpButton(
-                icon: Icons.monetization_on,
-                label: "Penjualan",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PenjualanPage()),
-                  );
-                },
-              ),
-              HelpButton(
-                icon: Icons.history,
-                label: "Riwayat Transaksi",
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Fitur Riwayat Transaksi belum tersedia."),
-                  ));
-                },
-              ),
-              HelpButton(
-                icon: Icons.account_balance_wallet,
-                label: "Dompet",
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Fitur Dompet belum tersedia."),
-                  ));
-                },
-              ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFFFFFFF),
+              Color.fromARGB(255, 190, 207, 253),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "FAQ",
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF6F92D8),
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "Pertanyaan yang sering diajukan",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Info Umum",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF6F92D8),
+                  ),
+                ),
+                SizedBox(height: 10),
+                HelpButton(
+                  icon: Icons.shopping_cart,
+                  label: "Katalog Produk",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => KatalogProdukPage()),
+                    );
+                  },
+                ),
+                HelpButton(
+                  icon: Icons.monetization_on,
+                  label: "Penjualan",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PenjualanPage()),
+                    );
+                  },
+                ),
+                HelpButton(
+                  icon: Icons.history,
+                  label: "Riwayat Transaksi",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RiwayatProdukPage()),
+                    );
+                  },
+                ),
+                HelpButton(
+                  icon: Icons.account_balance_wallet,
+                  label: "Dompet",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DompetPage()),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -126,7 +142,7 @@ class HelpButton extends StatelessWidget {
         margin: EdgeInsets.symmetric(vertical: 8),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFEFF4FA), // Warna background box
+          color: const Color.fromARGB(255, 255, 255, 255), // Warna background box
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(

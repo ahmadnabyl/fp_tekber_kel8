@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // Untuk font Poppins
-import 'package:hive_flutter/hive_flutter.dart'; // Import Hive
 import 'package:intl/intl.dart'; // Import untuk NumberFormat
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
 
 class WalletPage extends StatelessWidget {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,10 +22,10 @@ class WalletPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 4.0,
       ),
-      body: FutureBuilder(
-        // Mengambil data saldo dari Hive
-        future: _getWalletData(),
-        builder: (context, snapshot) {
+      body: StreamBuilder(
+        // Mengambil data saldo dari Firestore
+        stream: firestore.collection('wallet').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
@@ -32,7 +34,7 @@ class WalletPage extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final walletData = snapshot.data as List<double>?;
+          final walletData = snapshot.data?.docs;
 
           if (walletData == null || walletData.isEmpty) {
             // Jika tidak ada transaksi atau saldo
@@ -71,6 +73,9 @@ class WalletPage extends StatelessWidget {
             child: ListView.builder(
               itemCount: walletData.length,
               itemBuilder: (context, index) {
+                final transaction = walletData[index];
+                final amount = transaction['amount'] ?? 0.0;
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Container(
@@ -91,7 +96,7 @@ class WalletPage extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Rp${NumberFormat('#,###', 'id_ID').format(walletData[index])}",
+                          "Rp${NumberFormat('#,###', 'id_ID').format(amount)}",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w600,
                             fontSize: 18,
@@ -108,12 +113,5 @@ class WalletPage extends StatelessWidget {
         },
       ),
     );
-  }
-
-  // Fungsi untuk mengambil data saldo (list transaksi) dari Hive
-  Future<List<double>?> _getWalletData() async {
-    var walletBox = await Hive.openBox('wallet');
-    List<double> walletList = walletBox.get('transactions', defaultValue: <double>[]);
-    return walletList;
   }
 }

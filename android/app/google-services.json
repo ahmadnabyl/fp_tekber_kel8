@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "960057824489",
+    "project_id": "fp-tekber-8",
+    "storage_bucket": "fp-tekber-8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960057824489:android:71c2a653f6dd825f36cc78",
+        "android_client_info": {
+          "package_name": "com.example.fp_tekber_8"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvRS5Zutb88lYzprNDxTKhhZI9w9UfP-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart'; // Untuk font Poppins
 import 'package:intl/intl.dart';
-import '../models/barang.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductHistory extends StatefulWidget {
   @override
@@ -10,13 +9,7 @@ class ProductHistory extends StatefulWidget {
 }
 
 class _ProductHistoryState extends State<ProductHistory> {
-  late Box<Map> historyBox;
-
-  @override
-  void initState() {
-    super.initState();
-    historyBox = Hive.box<Map>('product_history');
-  }
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +27,14 @@ class _ProductHistoryState extends State<ProductHistory> {
         backgroundColor: Colors.white,
         elevation: 4.0,
       ),
-      body: ValueListenableBuilder(
-        valueListenable: historyBox.listenable(),
-        builder: (context, Box<Map> box, _) {
-          if (box.isEmpty) {
+      body: StreamBuilder(
+        stream: firestore.collection('product_history').orderBy('timestamp', descending: true).snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             // Tampilan jika riwayat kosong
             return Center(
               child: Padding(
@@ -68,12 +65,13 @@ class _ProductHistoryState extends State<ProductHistory> {
           }
 
           // Jika riwayat tersedia, tampilkan datanya
-          var historyList = box.values.toList().reversed.toList();
+          var historyList = snapshot.data!.docs;
 
           return ListView.builder(
             itemCount: historyList.length,
             itemBuilder: (context, index) {
-              final history = historyList[index];
+              final historyDoc = historyList[index];
+              final history = historyDoc.data() as Map<String, dynamic>;
 
               return Card(
                 margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -91,13 +89,10 @@ class _ProductHistoryState extends State<ProductHistory> {
                     style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                   ),
                   subtitle: _buildSubtitle(history),
-                  isThreeLine: false, // Tidak perlu menampilkan harga
                   trailing: IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() {
-                        box.deleteAt(historyList.length - index - 1);
-                      });
+                    onPressed: () async {
+                      await firestore.collection('product_history').doc(historyDoc.id).delete();
                     },
                   ),
                 ),
@@ -109,11 +104,11 @@ class _ProductHistoryState extends State<ProductHistory> {
     );
   }
 
-  Widget _buildSubtitle(Map history) {
-    String action = _getActionText(history['type'], history['changes']);
+  Widget _buildSubtitle(Map<String, dynamic> history) {
+    String action = _getActionText(history['type']);
     String timestamp = _formatTimestamp(history['timestamp']);
 
-  // Jika ada daftar perubahan, tambahkan detail perubahan ke subtitle
+    // Jika ada daftar perubahan, tambahkan detail perubahan ke subtitle
     String changesDetail = '';
     if (history['changes'] != null && history['changes'] is List) {
       changesDetail = (history['changes'] as List)
@@ -127,7 +122,7 @@ class _ProductHistoryState extends State<ProductHistory> {
     );
   }
 
-  String _getActionText(String type, [List<String>? changes]) {
+  String _getActionText(String? type) {
     switch (type) {
       case 'add':
         return 'Produk Ditambahkan';
@@ -140,43 +135,37 @@ class _ProductHistoryState extends State<ProductHistory> {
     }
   }
 
-  String _formatTimestamp(String timestamp) {
-    final dateTime = DateTime.parse(timestamp);
+  String _formatTimestamp(Timestamp timestamp) {
+    final dateTime = timestamp.toDate();
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
   }
 
-  void editProduct({
-    required Barang oldProduct,
-    required Barang newProduct,
-  }) {
-    final timestamp = DateTime.now().toIso8601String();
-    final changes = _generateChangeLog(oldProduct: oldProduct, newProduct: newProduct);
-
-    historyBox.add({
-      'type': 'edit',
-      'name': newProduct.name,
-      'timestamp': timestamp,
-      'changes': changes.split(', '), // Pisahkan perubahan menjadi daftar untuk tampilan
-    });
-  }
-  String _generateChangeLog({Barang? oldProduct, Barang? newProduct}) {
-    List<String> changes = [];
-
-    if (oldProduct != null && newProduct != null) {
-      if (oldProduct.name != newProduct.name) {
-        changes.add('Nama diubah dari ${oldProduct.name} menjadi ${newProduct.name}');
-      }
-      if (oldProduct.sellPrice != newProduct.sellPrice) {
-        changes.add(
-          'Harga jual diubah dari Rp ${NumberFormat("#,##0", "id_ID").format(oldProduct.sellPrice)} '
-          'menjadi Rp ${NumberFormat("#,##0", "id_ID").format(newProduct.sellPrice)}',
-        );
-      }
-      if (oldProduct.stock != newProduct.stock) {
-        changes.add('Stok diubah dari ${oldProduct.stock} menjadi ${newProduct.stock}');
-      }
+  Future<void> addHistory({
+    required String type,
+    required String name,
+    List<String>? changes,
+  }) async {
+    final timestamp = Timestamp.now();
+    try {
+      await firestore.collection('product_history').add({
+        'type': type,
+        'name': name,
+        'timestamp': timestamp,
+        'changes': changes ?? [],
+      });
+    } catch (e) {
+      print("Gagal menambahkan riwayat: $e");
     }
+  }
 
-    return changes.isNotEmpty ? changes.join(', ') : 'Tidak ada perubahan signifikan';
+  Future<void> editHistory({
+    required String name,
+    required List<String> changes,
+  }) async {
+    await addHistory(type: 'edit', name: name, changes: changes);
+  }
+
+  Future<void> deleteHistory(String name) async {
+    await addHistory(type: 'delete', name: name);
   }
 }

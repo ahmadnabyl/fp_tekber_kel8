@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:hive_flutter/hive_flutter.dart';  // Import Hive
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
@@ -41,12 +41,36 @@ class _PaymentPageState extends State<PaymentPage> {
     }
   }
 
-  // Fungsi untuk menyimpan transaksi pembayaran ke dalam Hive
+  // Fungsi untuk menyimpan transaksi pembayaran ke Firestore
   Future<void> _savePayment() async {
-    var walletBox = await Hive.openBox('wallet');
-    List<double> transactions = walletBox.get('transactions', defaultValue: <double>[]); // Ambil data transaksi yang sudah ada
-    transactions.add(widget.totalAmount); // Tambahkan transaksi baru
-    await walletBox.put('transactions', transactions); // Simpan daftar transaksi yang diperbarui
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      await firestore.collection('payments').add({
+        'customerName': _customerNameController.text.isNotEmpty
+            ? _customerNameController.text
+            : "Tidak Diketahui",
+        'totalAmount': widget.totalAmount,
+        'paidAmount': double.tryParse(_amountController.text) ?? 0.0,
+        'change': _change,
+        'date': Timestamp.now(),
+        'items': widget.items.map((item) {
+          return {
+            'name': item['name'],
+            'quantity': item['quantity'],
+            'price': item['price'],
+          };
+        }).toList(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Transaksi berhasil disimpan ke Firestore!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menyimpan transaksi: $e')),
+      );
+    }
   }
 
   @override
@@ -193,7 +217,7 @@ class _PaymentPageState extends State<PaymentPage> {
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  // Menyimpan transaksi pembayaran ke Hive
+                  // Menyimpan transaksi pembayaran ke Firestore
                   await _savePayment();
 
                   // Menampilkan dialog struk

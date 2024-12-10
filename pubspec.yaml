@@ -16,7 +16,12 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   google_fonts: ^5.0.0 
-  image_picker: ^0.8.7+4 # Gunakan versi terbaru jika memungkinkan
+  image_picker: ^0.8.7+4
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.4 # Tambahkan ini jika menggunakan Authentication
+  cloud_firestore: ^5.5.0 # Tambahkan jika menggunakan Firestore
+  firebase_storage: ^12.3.7 # Tambahkan jika menggunakan Storage
+ # Gunakan versi terbaru jika memungkinkan
 
 
 dev_dependencies:
