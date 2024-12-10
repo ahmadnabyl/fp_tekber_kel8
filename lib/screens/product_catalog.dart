@@ -181,11 +181,44 @@ class ProductCatalog extends StatelessWidget {
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        firestore
-                                            .collection('products')
-                                            .doc(productDoc.id)
-                                            .delete();
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: Text("Hapus Produk"),
+                                            content: Text("Apakah Anda yakin ingin menghapus produk '${product.name}'?"),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, false),
+                                                child: Text("Batal"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, true),
+                                                child: Text("Hapus"),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        if (confirm == true) {
+                                          try {
+                                            await firestore.collection('products').doc(productDoc.id).delete();
+                                            await firestore.collection('product_history').add({
+                                              'type': 'delete',
+                                              'name': product.name,
+                                              'timestamp': Timestamp.now(),
+                                              'changes': []
+                                            });
+
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Produk '${product.name}' berhasil dihapus")),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text("Gagal menghapus produk: $e")),
+                                            );
+                                          }
+                                        }
                                       },
                                     ),
                                   ],

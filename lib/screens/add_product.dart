@@ -66,10 +66,29 @@ class _AddProductPageState extends State<AddProductPage> {
 
         if (widget.product != null) {
           // Update produk yang sudah ada
-          await firestore.collection('products').doc(widget.product!.id).update(newProduct.toMap());
+          await firestore
+              .collection('products')
+              .doc(widget.product!.id)
+              .update(newProduct.toMap());
+
+          // Tambahkan riwayat perubahan
+          await firestore.collection('product_history').add({
+            'type': 'edit',
+            'name': newProduct.name,
+            'timestamp': Timestamp.now(),
+            'changes': _generateChangeList(widget.product!, newProduct),
+          });
         } else {
           // Tambahkan produk baru
-          await firestore.collection('products').add(newProduct.toMap());
+          final newDoc = await firestore.collection('products').add(newProduct.toMap());
+
+          // Tambahkan riwayat penambahan
+          await firestore.collection('product_history').add({
+            'type': 'add',
+            'name': newProduct.name,
+            'timestamp': Timestamp.now(),
+            'changes': [], // Tidak ada perubahan untuk produk baru
+          });
         }
 
         Navigator.pop(context);
@@ -84,6 +103,28 @@ class _AddProductPageState extends State<AddProductPage> {
       );
     }
   }
+
+  List<String> _generateChangeList(Barang oldProduct, Barang newProduct) {
+  final changes = <String>[];
+
+  if (oldProduct.name != newProduct.name) {
+    changes.add("Nama diubah dari '${oldProduct.name}' ke '${newProduct.name}'");
+  }
+  if (oldProduct.buyPrice != newProduct.buyPrice) {
+    changes.add("Harga Beli diubah dari ${oldProduct.buyPrice} ke ${newProduct.buyPrice}");
+  }
+  if (oldProduct.sellPrice != newProduct.sellPrice) {
+    changes.add("Harga Jual diubah dari ${oldProduct.sellPrice} ke ${newProduct.sellPrice}");
+  }
+  if (oldProduct.stock != newProduct.stock) {
+    changes.add("Stok diubah dari ${oldProduct.stock} ke ${newProduct.stock}");
+  }
+  if (oldProduct.description != newProduct.description) {
+    changes.add("Deskripsi diubah");
+  }
+
+  return changes;
+}
 
   @override
   Widget build(BuildContext context) {
