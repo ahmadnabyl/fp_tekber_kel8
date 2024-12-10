@@ -6,7 +6,14 @@ import 'sales_page.dart'; // Impor halaman SalesPage
 import 'wallet_page.dart'; // Impor halaman WalletPage
 import 'pusatbantuan.dart'; // Impor halaman Pusat Bantuan
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isBalanceHidden = false; // State untuk menyembunyikan/memperlihatkan saldo
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,100 +21,112 @@ class HomePage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            SingleChildScrollView(
-              child: DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Color(0xFF6F92D8),
+            // Bagian header dengan gradasi
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4A90E2), Color(0xFFA4C8EA)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.account_circle,
+                        size: 50,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Toko Sinyo',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Admin',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          Icons.account_circle,
-                          size: 50,
-                          color: Color.fromARGB(255, 247, 247, 247),
-                        ),
-                        SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Toko Sinyo',
+                              "Saldo",
                               style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4A90E2),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             Text(
-                              'Admin',
+                              _isBalanceHidden ? "*****" : "Rp0",
                               style: GoogleFonts.poppins(
-                                color: Colors.grey[400],
-                                fontSize: 14,
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
+                        IconButton(
+                          icon: Icon(
+                            _isBalanceHidden ? Icons.visibility_off : Icons.visibility,
+                            color: Color(0xFF4A90E2),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isBalanceHidden = !_isBalanceHidden;
+                            });
+                          },
+                        ),
                       ],
                     ),
-                    SizedBox(height: 10),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          "Saldo",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 32, 132, 213),
-                          ),
-                        ),
-                        subtitle: Text(
-                          "Rp0",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 88, 88, 88),
-                          ),
-                        ),
-                        trailing: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => WalletPage()), // Navigasi ke WalletPage
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 111, 146, 216),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          ),
-                          child: Text(
-                            "Dompet",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+            // Menu item
             ListTile(
-              leading: Icon(Icons.shopping_cart),
+              leading: Icon(Icons.dashboard, color: Colors.black),
+              title: Text(
+                'Dasbor',
+                style: GoogleFonts.poppins(fontSize: 17),
+              ),
+              onTap: () {
+                Navigator.pop(context); // Tutup drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.shopping_cart, color: Colors.black),
               title: Text(
                 'Katalog Produk',
-                style: GoogleFonts.poppins(),
+                style: GoogleFonts.poppins(fontSize: 17),
               ),
               onTap: () {
                 Navigator.push(
@@ -117,23 +136,10 @@ class HomePage extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.history),
-              title: Text(
-                'Riwayat Produk',
-                style: GoogleFonts.poppins(),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProductHistory()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.monetization_on),
+              leading: Icon(Icons.monetization_on, color: Colors.black),
               title: Text(
                 'Penjualan',
-                style: GoogleFonts.poppins(),
+                style: GoogleFonts.poppins(fontSize: 17),
               ),
               onTap: () {
                 Navigator.push(
@@ -143,52 +149,96 @@ class HomePage extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app),
+              leading: Icon(Icons.history, color: Colors.black),
               title: Text(
-                'Logout',
-                style: GoogleFonts.poppins(),
+                'Riwayat Produk',
+                style: GoogleFonts.poppins(fontSize: 17),
               ),
               onTap: () {
-                // Aksi untuk logout
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProductHistory()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_balance_wallet, color: Colors.black),
+              title: Text(
+                'Dompet',
+                style: GoogleFonts.poppins(fontSize: 17),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WalletPage()),
+                );
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.logout, color: Colors.black),
+              title: Text(
+                'Logout',
+                style: GoogleFonts.poppins(fontSize: 17),
+              ),
+              onTap: () {
+                Navigator.pop(context); // Tambahkan aksi logout jika diperlukan
               },
             ),
           ],
         ),
       ),
       body: Container(
-        color: Colors.white,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFFFFFF), Color.fromARGB(255, 190, 207, 253)], // Gradasi putih ke biru muda
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: Column(
           children: [
             AppBar(
-              backgroundColor: Color(0xFFF5F5F5),
+              backgroundColor: Colors.white,
               elevation: 0,
               title: Text(
                 "Dasbor",
                 style: GoogleFonts.poppins(
                   color: Color(0xFF6F92D8),
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
                 ),
               ),
               centerTitle: true,
               leading: Builder(
                 builder: (context) => IconButton(
-                  icon: Icon(Icons.menu),
+                  icon: Icon(Icons.menu, color: Color(0xFF6F92D8)),
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
                   },
                 ),
               ),
             ),
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
+            SizedBox(height: 16),
+            Center(
               child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/header.jpg'),
-                    fit: BoxFit.cover,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4A90E2), Color(0xFFA4C8EA)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -198,105 +248,96 @@ class HomePage extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              "Halo, Toko Sinyo!",
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 16),
                             Row(
                               children: [
-                                Text(
-                                  "Halo, ",
-                                  style: GoogleFonts.poppins(
-                                    color: Color.fromARGB(255, 88, 88, 88),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Toko Sinyo!",
-                                  style: GoogleFonts.poppins(
-                                    color: Color.fromARGB(255, 88, 88, 88),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Saldo",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 70, // Atur lebar tetap
+                                          child: Text(
+                                            _isBalanceHidden ? "*****" : "Rp0",
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 19,
+                                            ),
+                                            overflow: TextOverflow.clip,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        IconButton(
+                                          icon: Icon(
+                                            _isBalanceHidden
+                                                ? Icons.visibility_off
+                                                : Icons.visibility,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _isBalanceHidden = !_isBalanceHidden;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => PusatBantuan()), // Navigasi ke PusatBantuanPage
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              child: Text(
-                                "Pusat Bantuan",
-                                style: GoogleFonts.poppins(
-                                    color: Color.fromARGB(255, 111, 146, 216)),
-                              ),
-                            ),
                           ],
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.account_circle,
-                            color: Color.fromARGB(255, 182, 182, 182),
-                            size: 55,
-                          ),
-                          onPressed: () {},
+                        Icon(
+                          Icons.account_circle,
+                          color: Colors.white,
+                          size: 50,
                         ),
                       ],
                     ),
                     SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Saldo",
-                              style: GoogleFonts.poppins(
-                                color: Color.fromARGB(255, 32, 132, 213),
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              "Rp0",
-                              style: GoogleFonts.poppins(
-                                color: Color.fromARGB(255, 88, 88, 88),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => WalletPage()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 111, 146, 216),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PusatBantuan()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            "Dompet",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        child: Text(
+                          "Pusat Bantuan",
+                          style: GoogleFonts.poppins(
+                            color: Color(0xFF4A90E2),
+                            fontSize: 17,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -304,60 +345,35 @@ class HomePage extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                   children: [
-                    SizedBox(height: 40),
-                    HomeCard(
+                    buildCard(
                       title: "Katalog Produk",
                       icon: Icons.shopping_cart_outlined,
-                      color: Color(0xFFEFF4FA),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductCatalog(),
-                          ),
-                        );
-                      },
-                      textStyle: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                      ),
+                      context: context,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductCatalog())),
                     ),
-                    SizedBox(height: 20),
-                    HomeCard(
+                    buildCard(
                       title: "Penjualan",
                       icon: Icons.monetization_on_outlined,
-                      color: Color(0xFFEFF4FA),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SalesPage()),
-                        );
-                      },
-                      textStyle: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                      ),
+                      context: context,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SalesPage())),
                     ),
-                    SizedBox(height: 20),
-                    HomeCard(
+                    buildCard(
                       title: "Riwayat Produk",
                       icon: Icons.history_outlined,
-                      color: Color(0xFFEFF4FA),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductHistory(),
-                          ),
-                        );
-                      },
-                      textStyle: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                      ),
+                      context: context,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductHistory())),
+                    ),
+                    buildCard(
+                      title: "Dompet",
+                      icon: Icons.account_balance_wallet_outlined,
+                      context: context,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WalletPage())),
                     ),
                   ],
                 ),
@@ -368,44 +384,38 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-}
 
-class HomeCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-  final TextStyle textStyle;
-
-  const HomeCard({
-    required this.title,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-    required this.textStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildCard({
+    required String title,
+    required IconData icon,
+    required BuildContext context,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 60,
-        padding: EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.black54,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: Offset(0, 4),
             ),
-            SizedBox(width: 10),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: Color(0xFF4A90E2)),
+            SizedBox(height: 10),
             Text(
               title,
-              style: textStyle,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
