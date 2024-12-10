@@ -7,8 +7,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_product.dart'; // Import halaman AddProductPage
 import '../models/barang.dart';
 
-class ProductCatalog extends StatelessWidget {
+class ProductCatalog extends StatefulWidget {
+  @override
+  _ProductCatalogState createState() => _ProductCatalogState();
+}
+
+class _ProductCatalogState extends State<ProductCatalog> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  String searchQuery = ""; // Untuk menyimpan input pencarian
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +43,11 @@ class ProductCatalog extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase(); // Simpan query pencarian
+                });
+              },
               decoration: InputDecoration(
                 hintText: "Cari produk kamu disini",
                 hintStyle: GoogleFonts.poppins(color: Colors.grey),
@@ -58,41 +69,36 @@ class ProductCatalog extends StatelessWidget {
                   return Center(child: CircularProgressIndicator());
                 }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                final filteredProducts = snapshot.hasData
+                    ? snapshot.data!.docs.where((doc) {
+                        final name = doc['name'].toString().toLowerCase();
+                        return name.contains(searchQuery);
+                      }).toList()
+                    : [];
+
+                if (filteredProducts.isEmpty) {
                   return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 80),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: 20),
-                          Image.asset(
-                            'assets/bismillah.png',
-                            width: 200,
-                            height: 200,
-                            fit: BoxFit.contain,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            "Produk Tidak Ditemukan",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 80, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text(
+                          "Produk tidak ditemukan",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey),
+                        ),
+                      ],
                     ),
                   );
                 }
 
                 return ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: snapshot.data!.docs.length,
+                  itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
-                    final productDoc = snapshot.data!.docs[index];
+                    final productDoc = filteredProducts[index];
                     final product = Barang.fromFirestore(productDoc);
 
                     return Card(
@@ -182,42 +188,53 @@ class ProductCatalog extends StatelessWidget {
                                     IconButton(
                                       icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: Text("Hapus Produk"),
-                                            content: Text("Apakah Anda yakin ingin menghapus produk '${product.name}'?"),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context, false),
-                                                child: Text("Batal"),
-                                              ),
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context, true),
-                                                child: Text("Hapus"),
-                                              ),
-                                            ],
-                                          ),
-                                        );
+                                        try {
+                                          final confirm = await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text("Hapus Produk"),
+                                              content: Text("Apakah Anda yakin ingin menghapus produk '${product.name}'?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  child: Text("Batal"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  child: Text("Hapus"),
+                                                ),
+                                              ],
+                                            ),
+                                          );
 
-                                        if (confirm == true) {
-                                          try {
-                                            await firestore.collection('products').doc(productDoc.id).delete();
-                                            await firestore.collection('product_history').add({
-                                              'type': 'delete',
-                                              'name': product.name,
-                                              'timestamp': Timestamp.now(),
-                                              'changes': []
-                                            });
+                                          if (confirm == true) {
+                                            try {
+                                              // Hapus produk dari Firestore
+                                              await firestore.collection('products').doc(productDoc.id).delete();
 
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Produk '${product.name}' berhasil dihapus")),
-                                            );
-                                          } catch (e) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Gagal menghapus produk: $e")),
-                                            );
+                                              // Tambahkan ke history
+                                              await firestore.collection('product_history').add({
+                                                'type': 'delete',
+                                                'name': product.name,
+                                                'timestamp': Timestamp.now(),
+                                                'changes': []
+                                              });
+
+                                              // Tampilkan pesan berhasil
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Produk '${product.name}' berhasil dihapus")),
+                                              );
+                                            } catch (e) {
+                                              // Log error Firestore
+                                              print("Gagal menghapus produk dari Firestore: $e");
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text("Gagal menghapus produk: $e")),
+                                              );
+                                            }
                                           }
+                                        } catch (e) {
+                                          // Log error dialog
+                                          print("Kesalahan saat menampilkan dialog konfirmasi: $e");
                                         }
                                       },
                                     ),

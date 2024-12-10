@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
+import 'package:intl/intl.dart'; // Untuk format angka
 import 'product_catalog.dart';
 import 'product_history.dart';
 import 'sales_page.dart'; // Impor halaman SalesPage
@@ -64,49 +66,72 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  // Bagian saldo dengan StreamBuilder untuk mengambil data dari Firestore
+                  StreamBuilder(
+                    stream: FirebaseFirestore.instance.collection('wallet').snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+
+                      if (snapshot.hasError) {
+                        return Text('Error', style: GoogleFonts.poppins(color: Colors.red));
+                      }
+
+                      // Menghitung total saldo dari data wallet
+                      final walletData = snapshot.data?.docs ?? [];
+                      final totalBalance = walletData.fold<double>(
+                        0.0,
+                        (previousValue, element) => previousValue + (element['amount'] ?? 0.0),
+                      );
+
+                      return Container(
+                        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              "Saldo",
-                              style: GoogleFonts.poppins(
-                                color: Color(0xFF4A90E2),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Saldo",
+                                  style: GoogleFonts.poppins(
+                                    color: Color(0xFF4A90E2),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  _isBalanceHidden
+                                      ? "*****"
+                                      : "Rp${NumberFormat('#,###', 'id_ID').format(totalBalance)}",
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.black,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              _isBalanceHidden ? "*****" : "Rp0",
-                              style: GoogleFonts.poppins(
-                                color: Colors.black,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
+                            IconButton(
+                              icon: Icon(
+                                _isBalanceHidden ? Icons.visibility_off : Icons.visibility,
+                                color: Color(0xFF4A90E2),
                               ),
+                              onPressed: () {
+                                setState(() {
+                                  _isBalanceHidden = !_isBalanceHidden;
+                                });
+                              },
                             ),
                           ],
                         ),
-                        IconButton(
-                          icon: Icon(
-                            _isBalanceHidden ? Icons.visibility_off : Icons.visibility,
-                            color: Color(0xFF4A90E2),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isBalanceHidden = !_isBalanceHidden;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -272,16 +297,29 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Row(
                                       children: [
-                                        SizedBox(
-                                          width: 70, // Atur lebar tetap
-                                          child: Text(
-                                            _isBalanceHidden ? "*****" : "Rp0",
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 17,
-                                            ),
-                                            overflow: TextOverflow.clip,
-                                          ),
+                                        StreamBuilder(
+                                          stream: FirebaseFirestore.instance.collection('wallet').snapshots(),
+                                          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                            if (snapshot.connectionState == ConnectionState.waiting) {
+                                              return Text("Loading...");
+                                            }
+
+                                            final walletData = snapshot.data?.docs ?? [];
+                                            final totalBalance = walletData.fold<double>(
+                                              0.0,
+                                              (previousValue, element) => previousValue + (element['amount'] ?? 0.0),
+                                            );
+
+                                            return Text(
+                                              _isBalanceHidden
+                                                  ? "*****"
+                                                  : "Rp${NumberFormat('#,###', 'id_ID').format(totalBalance)}",
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 17,
+                                              ),
+                                            );
+                                          },
                                         ),
                                         SizedBox(width: 8),
                                         IconButton(

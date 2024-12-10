@@ -21,7 +21,9 @@ dependencies:
   firebase_auth: ^5.3.4 # Tambahkan ini jika menggunakan Authentication
   cloud_firestore: ^5.5.0 # Tambahkan jika menggunakan Firestore
   firebase_storage: ^12.3.7 # Tambahkan jika menggunakan Storage
- # Gunakan versi terbaru jika memungkinkan
+  pdf: ^3.9.0
+  path_provider: ^2.0.11
+  permission_handler: ^10.3.0
 
 
 dev_dependencies:
@@ -44,4 +46,5 @@ flutter:
     - assets/beras.jpg
     - assets/logotekber.png
     - assets/dompet.png
+    - assets/confirmation_image.png
 

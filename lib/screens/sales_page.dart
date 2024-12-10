@@ -5,6 +5,7 @@ import 'package:intl/intl.dart'; // Untuk format ribuan
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
 import 'package:flutter/foundation.dart' show kIsWeb; // Tambahkan import ini
 import 'payment_page.dart'; // Pastikan untuk mengimpor PaymentPage
+import 'homepage.dart'; // Impor halaman utama
 
 class SalesPage extends StatefulWidget {
   @override
@@ -27,6 +28,31 @@ class _SalesPageState extends State<SalesPage> {
     });
   }
 
+  Future<void> _updateStockAfterPayment() async {
+    final batch = firestore.batch();
+    _quantities.forEach((productId, quantity) {
+      final productRef = firestore.collection('products').doc(productId);
+      batch.update(productRef, {
+        'stock': FieldValue.increment(-quantity),
+      });
+    });
+
+    try {
+      await batch.commit();
+      setState(() {
+        _quantities.clear(); // Reset jumlah kuantitas setelah pembayaran
+        _totalPrice = 0.0;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Stok produk berhasil diperbarui')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memperbarui stok: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +60,11 @@ class _SalesPageState extends State<SalesPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()), // Kembali ke HomePage
+              (route) => false, // Menghapus semua halaman sebelumnya dari tumpukan navigasi
+            );
           },
         ),
         title: Text(
@@ -275,7 +305,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           final selectedItems = _quantities.entries
                               .where((entry) => entry.value > 0)
                               .map((entry) {
@@ -288,7 +318,7 @@ class _SalesPageState extends State<SalesPage> {
                               })
                               .toList();
 
-                          Navigator.push(
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => PaymentPage(
@@ -297,6 +327,9 @@ class _SalesPageState extends State<SalesPage> {
                               ),
                             ),
                           );
+
+                          // Setelah pembayaran, perbarui stok
+                          await _updateStockAfterPayment();
                         },
                         child: Text("Bayar"),
                       ),
@@ -309,7 +342,7 @@ class _SalesPageState extends State<SalesPage> {
             },
           ),
         ],
-      ),
+      ), 
     );
   }
 }

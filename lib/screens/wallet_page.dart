@@ -95,13 +95,69 @@ class WalletPage extends StatelessWidget {
                             color: Colors.green[700],
                           ),
                         ),
-                        Text(
-                          "Rp${NumberFormat('#,###', 'id_ID').format(amount)}",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                            color: Colors.green[700],
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              "Rp${NumberFormat('#,###', 'id_ID').format(amount)}",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                color: Colors.green[700],
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                // Dialog konfirmasi
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(
+                                      "Hapus Transaksi",
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    content: Text(
+                                      "Apakah Anda yakin ingin menghapus transaksi ini?",
+                                      style: GoogleFonts.poppins(),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(
+                                          "Batal",
+                                          style: GoogleFonts.poppins(color: Colors.grey),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          await firestore
+                                              .collection('wallet')
+                                              .doc(transaction.id)
+                                              .delete();
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                "Transaksi berhasil dihapus!",
+                                                style: GoogleFonts.poppins(),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          "Hapus",
+                                          style: GoogleFonts.poppins(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
