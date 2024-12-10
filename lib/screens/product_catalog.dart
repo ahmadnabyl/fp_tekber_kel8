@@ -69,25 +69,54 @@ class _ProductCatalogState extends State<ProductCatalog> {
                   return Center(child: CircularProgressIndicator());
                 }
 
-                final filteredProducts = snapshot.hasData
-                    ? snapshot.data!.docs.where((doc) {
-                        final name = doc['name'].toString().toLowerCase();
-                        return name.contains(searchQuery);
-                      }).toList()
-                    : [];
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 80),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/bismillah.png',
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.contain,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            "Produk Tidak Ditemukan",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                // Filter produk berdasarkan searchQuery
+                final filteredProducts = snapshot.data!.docs.where((product) {
+                  final name = product['name'].toString().toLowerCase();
+                  return name.contains(searchQuery); // Filter berdasarkan nama produk
+                }).toList();
 
                 if (filteredProducts.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(Icons.error_outline, size: 80, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
                           "Produk tidak ditemukan",
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey),
+                          style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey),
                         ),
                       ],
                     ),

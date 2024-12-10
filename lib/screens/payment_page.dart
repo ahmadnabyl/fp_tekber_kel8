@@ -43,6 +43,7 @@ class _PaymentPageState extends State<PaymentPage> {
     final firestore = FirebaseFirestore.instance;
 
     try {
+      // Simpan data pembayaran ke koleksi 'payments'
       await firestore.collection('payments').add({
         'customerName': _customerNameController.text.isNotEmpty
             ? _customerNameController.text
@@ -50,7 +51,7 @@ class _PaymentPageState extends State<PaymentPage> {
         'totalAmount': widget.totalAmount,
         'paidAmount': double.tryParse(_amountController.text) ?? 0.0,
         'change': _change,
-        'date': Timestamp.now(),
+        'timestamp': Timestamp.now(),
         'items': widget.items.map((item) {
           return {
             'name': item['name'],
@@ -60,10 +61,26 @@ class _PaymentPageState extends State<PaymentPage> {
         }).toList(),
       });
 
+      // Simpan data ke koleksi 'wallet'
       await firestore.collection('wallet').add({
         'amount': widget.totalAmount,
         'timestamp': Timestamp.now(),
       });
+
+      // Simpan data ke koleksi 'product_history'
+      for (var item in widget.items) {
+        await firestore.collection('product_history').add({
+          'type': 'sale',
+          'productName': item['name'],
+          'quantitySold': item['quantity'],
+          'price': item['price'],
+          'totalPrice': item['price'] * item['quantity'],
+          'customerName': _customerNameController.text.isNotEmpty
+              ? _customerNameController.text
+              : "Tidak Diketahui",
+          'timestamp': Timestamp.now(),
+        });
+      }
     } catch (e) {
       throw Exception('Gagal menyimpan transaksi: $e');
     }
@@ -181,7 +198,7 @@ class _PaymentPageState extends State<PaymentPage> {
             SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final currentContext = context;
                   showDialog(
                     context: context,
@@ -279,7 +296,6 @@ class _PaymentPageState extends State<PaymentPage> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      // Tutup semua dialog dan navigasi ke SalesPage
                                       Navigator.popUntil(context, (route) => route.isFirst);
                                       Navigator.pushReplacement(
                                         context,

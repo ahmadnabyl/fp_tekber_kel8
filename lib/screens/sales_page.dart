@@ -16,6 +16,7 @@ class _SalesPageState extends State<SalesPage> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   Map<String, int> _quantities = {}; // Untuk melacak jumlah kuantitas setiap produk
   double _totalPrice = 0.0;
+  String searchQuery = ""; // Tambahkan variabel untuk pencarian
 
   void _updateTotalPrice(List<QueryDocumentSnapshot> products) {
     double total = 0.0;
@@ -63,7 +64,7 @@ class _SalesPageState extends State<SalesPage> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => HomePage()), // Kembali ke HomePage
-              (route) => false, // Menghapus semua halaman sebelumnya dari tumpukan navigasi
+              (route) => false,
             );
           },
         ),
@@ -81,9 +82,15 @@ class _SalesPageState extends State<SalesPage> {
       ),
       body: Column(
         children: [
+          // TextField untuk Pencarian
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase(); // Simpan pencarian dalam lowercase
+                });
+              },
               decoration: InputDecoration(
                 hintText: "Cari produk kamu disini",
                 hintStyle: GoogleFonts.poppins(color: Colors.grey),
@@ -133,13 +140,37 @@ class _SalesPageState extends State<SalesPage> {
                   );
                 }
 
-                var products = snapshot.data!.docs;
+                // Filter produk berdasarkan searchQuery
+                final filteredProducts = snapshot.data!.docs.where((product) {
+                  final name = product['name'].toString().toLowerCase();
+                  return name.contains(searchQuery); // Filter berdasarkan nama produk
+                }).toList();
+
+                if (filteredProducts.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 80, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text(
+                          "Produk tidak ditemukan",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
                 return ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: products.length,
+                  itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
-                    final product = products[index];
+                    final product = filteredProducts[index];
                     final productId = product.id;
                     final quantity = _quantities[productId] ?? 0;
                     final availableStock = product['stock'];
@@ -223,7 +254,7 @@ class _SalesPageState extends State<SalesPage> {
                                             setState(() {
                                               _quantities[productId] = 1;
                                             });
-                                            _updateTotalPrice(products);
+                                            _updateTotalPrice(filteredProducts);
                                           }
                                         },
                                         child: Text("Tambah"),
@@ -237,7 +268,7 @@ class _SalesPageState extends State<SalesPage> {
                                                 setState(() {
                                                   _quantities[productId] = quantity - 1;
                                                 });
-                                                _updateTotalPrice(products);
+                                                _updateTotalPrice(filteredProducts);
                                               }
                                             },
                                           ),
@@ -252,7 +283,7 @@ class _SalesPageState extends State<SalesPage> {
                                                 setState(() {
                                                   _quantities[productId] = quantity + 1;
                                                 });
-                                                _updateTotalPrice(products);
+                                                _updateTotalPrice(filteredProducts);
                                               } else {
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   SnackBar(

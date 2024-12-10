@@ -81,7 +81,9 @@ class _ProductHistoryState extends State<ProductHistory> {
                         ? Icons.add
                         : history['type'] == 'edit'
                             ? Icons.edit
-                            : Icons.delete,
+                            : history['type'] == 'sale'
+                                ? Icons.shopping_cart
+                                : Icons.delete,
                     color: Colors.blue,
                   ),
                   title: Text(
@@ -108,7 +110,14 @@ class _ProductHistoryState extends State<ProductHistory> {
     String action = _getActionText(history['type']);
     String timestamp = _formatTimestamp(history['timestamp']);
 
-    // Jika ada daftar perubahan, tambahkan detail perubahan ke subtitle
+    // Detail tambahan untuk penjualan
+    String saleDetail = '';
+    if (history['type'] == 'sale') {
+      saleDetail = '\nJumlah Terjual: ${history['quantitySold'] ?? 0}'
+                  '\nTotal Harga: Rp${history['totalPrice']?.toStringAsFixed(2) ?? '0.00'}';
+    }
+
+    // Jika ada daftar perubahan
     String changesDetail = '';
     if (history['changes'] != null && history['changes'] is List) {
       changesDetail = (history['changes'] as List)
@@ -117,7 +126,7 @@ class _ProductHistoryState extends State<ProductHistory> {
     }
 
     return Text(
-      "Aksi: $action\nWaktu: $timestamp${changesDetail.isNotEmpty ? '\nPerubahan:\n$changesDetail' : ''}",
+      "Aksi: $action\nWaktu: $timestamp${saleDetail.isNotEmpty ? saleDetail : ''}${changesDetail.isNotEmpty ? '\nPerubahan:\n$changesDetail' : ''}",
       style: GoogleFonts.poppins(),
     );
   }
@@ -130,6 +139,8 @@ class _ProductHistoryState extends State<ProductHistory> {
         return 'Produk Diedit';
       case 'delete':
         return 'Produk Dihapus';
+      case 'sale':
+        return 'Penjualan';
       default:
         return 'Tidak Diketahui';
     }
@@ -167,5 +178,24 @@ class _ProductHistoryState extends State<ProductHistory> {
 
   Future<void> deleteHistory(String name) async {
     await addHistory(type: 'delete', name: name);
+  }
+
+  Future<void> recordSale({
+    required String productName,
+    required int quantitySold,
+    required double totalPrice,
+  }) async {
+    final timestamp = Timestamp.now();
+    try {
+      await firestore.collection('product_history').add({
+        'type': 'sale',
+        'name': productName,
+        'quantitySold': quantitySold,
+        'totalPrice': totalPrice,
+        'timestamp': timestamp,
+      });
+    } catch (e) {
+      print("Gagal mencatat penjualan: $e");
+    }
   }
 }
