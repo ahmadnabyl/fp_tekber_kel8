@@ -115,27 +115,34 @@ class DropdownItem extends StatelessWidget {
           ),
         ],
       ),
-      child: ExpansionTile(
-        title: Text(
-          item.title,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 13.5,
-            color: const Color(0xFF333333),
-          ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent, // Menghilangkan garis hitam
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              item.description,
-              style: GoogleFonts.poppins(
-                color: Colors.grey[700],
-                fontSize: 12.0,
-              ),
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.zero, // Menghapus padding bawaan
+          title: Text(
+            item.title,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 13.5,
+              color: const Color(0xFF333333),
             ),
           ),
-        ],
+          childrenPadding: EdgeInsets.zero, // Menghilangkan padding anak
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                item.description,
+                style: GoogleFonts.poppins(
+                  color: Colors.grey[700],
+                  fontSize: 12.0,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

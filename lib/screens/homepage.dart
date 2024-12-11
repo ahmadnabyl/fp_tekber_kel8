@@ -230,8 +230,8 @@ class _HomePageState extends State<HomePage> {
                 "Dasbor",
                 style: GoogleFonts.poppins(
                   color: Color(0xFF6F92D8),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
                 ),
               ),
               centerTitle: true,
@@ -277,7 +277,7 @@ class _HomePageState extends State<HomePage> {
                               "Halo, Toko Sinyo!",
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -291,7 +291,7 @@ class _HomePageState extends State<HomePage> {
                                       "Saldo",
                                       style: GoogleFonts.poppins(
                                         color: Colors.white,
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -316,7 +316,7 @@ class _HomePageState extends State<HomePage> {
                                                   : "Rp${NumberFormat('#,###', 'id_ID').format(totalBalance)}",
                                               style: GoogleFonts.poppins(
                                                 color: Colors.white,
-                                                fontSize: 17,
+                                                fontSize: 15,
                                               ),
                                             );
                                           },

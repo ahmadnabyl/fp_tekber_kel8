@@ -34,7 +34,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 18,
-            color: const Color(0xFF6F92D8), // Warna biru
+            color: const Color(0xFF6F92D8),
           ),
         ),
         backgroundColor: Colors.white,
@@ -48,17 +48,16 @@ class _PenjualanPageState extends State<PenjualanPage> {
         ),
       ),
       body: Container(
-        // Gradasi background
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFFFFFFF), // Warna putih
-              Color.fromARGB(255, 190, 207, 253), // Warna biru muda
+              Color(0xFFFFFFFF),
+              Color.fromARGB(255, 190, 207, 253),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-        ), // Warna background putih murni
+        ),
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
@@ -70,7 +69,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF6F92D8), // Warna biru
+                      color: const Color(0xFF6F92D8),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -118,38 +117,45 @@ class SaleDropdownItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.white, // Latar belakang putih murni
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
             spreadRadius: 2,
             blurRadius: 4,
-            offset: const Offset(0, 2), // Shadow di bawah
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: ExpansionTile(
-        title: Text(
-          item.title,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 13.5,
-            color: const Color(0xFF333333), // Warna teks utama
-          ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent, // Menghilangkan garis hitam
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              item.description,
-              style: GoogleFonts.poppins(
-                color: Colors.grey[700],
-                fontSize: 12.0,
-              ),
+        child: ExpansionTile(
+          tilePadding: EdgeInsets.zero, // Menghapus padding bawaan
+          title: Text(
+            item.title,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 13.5,
+              color: const Color(0xFF333333),
             ),
           ),
-        ],
+          childrenPadding: EdgeInsets.zero, // Menghilangkan padding anak
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                item.description,
+                style: GoogleFonts.poppins(
+                  color: Colors.grey[700],
+                  fontSize: 12.0,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
