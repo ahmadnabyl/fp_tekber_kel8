@@ -335,35 +335,38 @@ class _SalesPageState extends State<SalesPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final selectedItems = _quantities.entries
-                              .where((entry) => entry.value > 0)
-                              .map((entry) {
-                                final product = products.firstWhere((p) => p.id == entry.key);
-                                return {
-                                  'name': product['name'],
-                                  'quantity': entry.value,
-                                  'price': product['sellPrice'],
-                                };
-                              })
-                              .toList();
+ElevatedButton(
+  onPressed: () async {
+    final selectedItems = _quantities.entries
+        .where((entry) => entry.value > 0)
+        .map((entry) {
+          final product = products.firstWhere((p) => p.id == entry.key);
+          return {
+            'id': product.id, // Tambahkan ID produk untuk pembaruan stok
+            'name': product['name'],
+            'quantity': entry.value,
+            'price': product['sellPrice'],
+          };
+        })
+        .toList();
 
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PaymentPage(
-                                totalAmount: _totalPrice,
-                                items: selectedItems,
-                              ),
-                            ),
-                          );
+    final paymentCompleted = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentPage(
+          totalAmount: _totalPrice,
+          items: selectedItems,
+        ),
+      ),
+    );
 
-                          // Setelah pembayaran, perbarui stok
-                          await _updateStockAfterPayment();
-                        },
-                        child: Text("Bayar"),
-                      ),
+    // Perbarui stok hanya jika pembayaran selesai
+    if (paymentCompleted == true) {
+      await _updateStockAfterPayment();
+    }
+  },
+  child: Text("Bayar"),
+),
                     ],
                   ),
                 );

@@ -71,7 +71,7 @@ class _PaymentPageState extends State<PaymentPage> {
       for (var item in widget.items) {
         await firestore.collection('product_history').add({
           'type': 'sale',
-          'productName': item['name'],
+          'name': item['name'],
           'quantitySold': item['quantity'],
           'price': item['price'],
           'totalPrice': item['price'] * item['quantity'],
@@ -81,6 +81,16 @@ class _PaymentPageState extends State<PaymentPage> {
           'timestamp': Timestamp.now(),
         });
       }
+
+      // Perbarui stok produk di Firestore
+      final batch = firestore.batch();
+      for (var item in widget.items) {
+        final productRef = firestore.collection('products').doc(item['id']);
+        batch.update(productRef, {
+          'stock': FieldValue.increment(-item['quantity']), // Kurangi stok
+        });
+      }
+      await batch.commit(); // Eksekusi pembaruan stok
     } catch (e) {
       throw Exception('Gagal menyimpan transaksi: $e');
     }
@@ -96,14 +106,14 @@ class _PaymentPageState extends State<PaymentPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context); // Kembali ke halaman sebelumnya
           },
         ),
         title: Text(
           "Pembayaran",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: Color(0xFF6F92D8),
           ),
         ),
@@ -118,12 +128,13 @@ class _PaymentPageState extends State<PaymentPage> {
           children: [
             Text(
               "Total Pembayaran",
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.w500),
             ),
             Text(
               "Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
               style: GoogleFonts.poppins(
-                fontSize: 28,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
                 color: Colors.green,
               ),
@@ -131,27 +142,35 @@ class _PaymentPageState extends State<PaymentPage> {
             SizedBox(height: 20),
             Text(
               "Nama Pelanggan",
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500),
             ),
             TextField(
               controller: _customerNameController,
               decoration: InputDecoration(
                 hintText: "Masukkan Nama Pelanggan (Optional)",
-                hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.grey,
+                  fontSize: 13, // Perkecil ukuran teks hint di sini
+                ),
                 border: OutlineInputBorder(),
               ),
             ),
             SizedBox(height: 20),
             Text(
               "Jumlah Uang",
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500),
             ),
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: "Masukkan Jumlah Uang",
-                hintStyle: GoogleFonts.poppins(color: Colors.grey),
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.grey,
+                  fontSize: 13, // Ubah ukuran hint di sini
+                ),
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -161,12 +180,13 @@ class _PaymentPageState extends State<PaymentPage> {
             SizedBox(height: 20),
             Text(
               "Kembalian",
-              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.w500),
             ),
             Text(
               "Rp${NumberFormat('#,###', 'id_ID').format(_change)}",
               style: GoogleFonts.poppins(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
               ),
@@ -175,30 +195,56 @@ class _PaymentPageState extends State<PaymentPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: () => _setAmount(widget.totalAmount),
-                  child: Text("Uang Pas", style: GoogleFonts.poppins(fontSize: 14)),
-                ),
-                ElevatedButton(
-                  onPressed: () => _setAmount(recommendations[0]),
-                  child: Text(
-                    "Rp${NumberFormat('#,###', 'id_ID').format(recommendations[0])}",
-                    style: GoogleFonts.poppins(fontSize: 14),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => _setAmount(recommendations[1]),
-                  child: Text(
-                    "Rp${NumberFormat('#,###', 'id_ID').format(recommendations[1])}",
-                    style: GoogleFonts.poppins(fontSize: 14),
-                  ),
+                Wrap(
+                  spacing: 6.0, // Jarak horizontal antar tombol
+                  runSpacing:
+                      6.0, // Jarak vertikal antar tombol jika wrap terjadi
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _setAmount(widget.totalAmount),
+                      child: Text("Uang Pas",
+                          style: GoogleFonts.poppins(fontSize: 12)),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _setAmount(recommendations[0]),
+                      child: Text(
+                        "Rp${NumberFormat('#,###', 'id_ID').format(recommendations[0])}",
+                        style: GoogleFonts.poppins(fontSize: 12),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _setAmount(recommendations[1]),
+                      child: Text(
+                        "Rp${NumberFormat('#,###', 'id_ID').format(recommendations[1])}",
+                        style: GoogleFonts.poppins(fontSize: 12),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 40),
             Center(
               child: ElevatedButton(
                 onPressed: () async {
+                  // Validasi field "Jumlah Uang"
+                  if (_amountController.text.isEmpty ||
+                      (double.tryParse(_amountController.text) ?? 0) <
+                          widget.totalAmount) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Jumlah Uang tidak boleh kosong dan harus mencukupi total pembayaran.",
+                          style: GoogleFonts.poppins(fontSize: 14),
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return; // Batalkan aksi jika validasi gagal
+                  }
+
+                  // Jika validasi berhasil, lanjutkan
                   final currentContext = context;
                   showDialog(
                     context: context,
@@ -206,24 +252,28 @@ class _PaymentPageState extends State<PaymentPage> {
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.asset('assets/confirmation_image.png', height: 150),
+                          Image.asset('assets/confirmation_image.png',
+                              height: 150),
                           SizedBox(height: 20),
                           Text(
                             "Pembayaran Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
-                            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.poppins(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: 10),
                           Text(
                             "Konfirmasi pembayaran dengan total Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)} telah dibayarkan oleh pembeli.",
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+                            style: GoogleFonts.poppins(
+                                fontSize: 14, color: Colors.grey),
                           ),
                         ],
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text("Batal", style: GoogleFonts.poppins(color: Colors.red)),
+                          child: Text("Batal",
+                              style: GoogleFonts.poppins(color: Colors.red)),
                         ),
                         TextButton(
                           onPressed: () async {
@@ -234,60 +284,73 @@ class _PaymentPageState extends State<PaymentPage> {
                               builder: (context) => AlertDialog(
                                 title: Text(
                                   "Struk Pembayaran",
-                                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 content: SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "Toko Sinyo",
-                                        style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "No. Toko: 08956432324",
-                                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+                                        style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Divider(),
                                       Text(
                                         "Atas Nama: ${_customerNameController.text.isEmpty ? "Tidak Diketahui" : _customerNameController.text}",
-                                        style: GoogleFonts.poppins(fontSize: 14),
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
                                       ),
                                       Text(
                                         "Tanggal: ${DateFormat('dd MMM yyyy').format(DateTime.now())}",
-                                        style: GoogleFonts.poppins(fontSize: 14),
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
                                       ),
-                                      Text("Pembayaran: Tunai", style: GoogleFonts.poppins(fontSize: 14)),
+                                      Text(
+                                        "Pembayaran: Tunai",
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
+                                      ),
                                       Divider(),
                                       Text(
                                         "Detail Pemesanan:",
-                                        style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
+                                        style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
                                       ),
                                       ...widget.items.map((item) {
                                         return Text(
                                           "${item['name']} x ${item['quantity']} - Rp${NumberFormat('#,###', 'id_ID').format(item['price'] * item['quantity'])}",
-                                          style: GoogleFonts.poppins(fontSize: 14),
+                                          style:
+                                              GoogleFonts.poppins(fontSize: 14),
                                         );
                                       }).toList(),
                                       Divider(),
                                       Text(
                                         "Total Pesanan: Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
-                                        style: GoogleFonts.poppins(fontSize: 14),
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
                                       ),
                                       Text(
                                         "Bayar: Rp${NumberFormat('#,###', 'id_ID').format(double.tryParse(_amountController.text) ?? 0.0)}",
-                                        style: GoogleFonts.poppins(fontSize: 14),
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
                                       ),
                                       Text(
                                         "Kembalian: Rp${NumberFormat('#,###', 'id_ID').format(_change)}",
-                                        style: GoogleFonts.poppins(fontSize: 14),
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
                                       ),
                                       Divider(),
                                       Center(
                                         child: Text(
                                           "Terima Kasih\nSudah Berbelanja di Toko Kami",
                                           textAlign: TextAlign.center,
-                                          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14),
+                                          style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
                                         ),
                                       ),
                                     ],
@@ -296,7 +359,8 @@ class _PaymentPageState extends State<PaymentPage> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.popUntil(context, (route) => route.isFirst);
+                                      Navigator.popUntil(
+                                          context, (route) => route.isFirst);
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
@@ -310,7 +374,8 @@ class _PaymentPageState extends State<PaymentPage> {
                               ),
                             );
                           },
-                          child: Text("OK", style: GoogleFonts.poppins(color: Colors.green)),
+                          child: Text("OK",
+                              style: GoogleFonts.poppins(color: Colors.green)),
                         ),
                       ],
                     ),
@@ -325,7 +390,10 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
                 child: Text(
                   "Konfirmasi Pembayaran",
-                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700),
                 ),
               ),
             ),

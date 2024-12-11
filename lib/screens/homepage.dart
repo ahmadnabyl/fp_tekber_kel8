@@ -281,7 +281,7 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            SizedBox(height: 16 ),
                             Row(
                               children: [
                                 Column(
@@ -351,7 +351,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 10),
                     Align(
                       alignment: Alignment.bottomRight,
                       child: ElevatedButton(
@@ -446,12 +446,12 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Color(0xFF4A90E2)),
+            Icon(icon, size: 30, color: Color(0xFF4A90E2)),
             SizedBox(height: 10),
             Text(
               title,
               style: GoogleFonts.poppins(
-                fontSize: 16,
+                fontSize: 14,
               ),
               textAlign: TextAlign.center,
             ),
