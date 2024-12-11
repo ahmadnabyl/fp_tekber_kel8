@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'sales_page.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
@@ -95,6 +97,46 @@ class _PaymentPageState extends State<PaymentPage> {
       throw Exception('Gagal menyimpan transaksi: $e');
     }
   }
+
+  Future<void> _generatePDF() async {
+  final pdf = pw.Document();
+
+  pdf.addPage(
+    pw.Page(
+      build: (context) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text("Toko Sinyo",
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
+          pw.Divider(),
+          pw.Text("Atas Nama: ${_customerNameController.text.isEmpty ? "Tidak Diketahui" : _customerNameController.text}"),
+          pw.Text("Tanggal: ${DateFormat('dd MMM yyyy').format(DateTime.now())}"),
+          pw.Text("Pembayaran: Tunai"),
+          pw.Divider(),
+          pw.Text("Detail Pemesanan:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          ...widget.items.map((item) {
+            return pw.Text("${item['name']} x ${item['quantity']} - Rp${NumberFormat('#,###', 'id_ID').format(item['price'] * item['quantity'])}");
+          }).toList(),
+          pw.Divider(),
+          pw.Text("Total Pesanan: Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}"),
+          pw.Text("Bayar: Rp${NumberFormat('#,###', 'id_ID').format(double.tryParse(_amountController.text) ?? 0.0)}"),
+          pw.Text("Kembalian: Rp${NumberFormat('#,###', 'id_ID').format(_change)}"),
+          pw.Divider(),
+          pw.Center(
+            child: pw.Text(
+              "Terima Kasih\nSudah Berbelanja di Toko Kami",
+              textAlign: pw.TextAlign.center,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  // Tampilkan dialog print/save
+  await Printing.layoutPdf(onLayout: (format) => pdf.save());
+}
 
   @override
   Widget build(BuildContext context) {
@@ -357,10 +399,9 @@ class _PaymentPageState extends State<PaymentPage> {
                                   ),
                                 ),
                                 actions: [
-                                  TextButton(
+                                  ElevatedButton(
                                     onPressed: () {
-                                      Navigator.popUntil(
-                                          context, (route) => route.isFirst);
+                                      Navigator.popUntil(context, (route) => route.isFirst);
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
@@ -368,7 +409,34 @@ class _PaymentPageState extends State<PaymentPage> {
                                         ),
                                       );
                                     },
-                                    child: Text("Tutup"),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Tutup",
+                                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      // Panggil fungsi untuk generate PDF
+                                      await _generatePDF();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Cetak",
+                                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+                                    ),
                                   ),
                                 ],
                               ),

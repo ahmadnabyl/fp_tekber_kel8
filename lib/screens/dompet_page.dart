@@ -23,7 +23,7 @@ class DompetPage extends StatelessWidget {
           "Dompet",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: const Color(0xFF6F92D8),
           ),
         ),
@@ -67,14 +67,14 @@ class DompetPage extends StatelessWidget {
                     "Pertanyaan yang sering diajukan seputar dompet",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.black,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             ...items.map((item) => DropdownItem(item: item)).toList(),
           ],
         ),
@@ -120,7 +120,7 @@ class DropdownItem extends StatelessWidget {
           item.title,
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 14.0,
+            fontSize: 13.5,
             color: const Color(0xFF333333),
           ),
         ),
@@ -131,7 +131,7 @@ class DropdownItem extends StatelessWidget {
               item.description,
               style: GoogleFonts.poppins(
                 color: Colors.grey[700],
-                fontSize: 14.0,
+                fontSize: 12.0,
               ),
             ),
           ),

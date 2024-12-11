@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart'; // Untuk format ribuan
-import 'package:flutter/foundation.dart' show kIsWeb; // Untuk deteksi platform Web
+import 'package:flutter/foundation.dart'
+    show kIsWeb; // Untuk deteksi platform Web
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_product.dart'; // Import halaman AddProductPage
 import '../models/barang.dart';
@@ -30,18 +31,20 @@ class _ProductCatalogState extends State<ProductCatalog> {
           "Katalog Produk",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20, // Menyesuaikan ukuran font
+            fontSize: 18, // Menyesuaikan ukuran font
             color: Color(0xFF6F92D8), // Warna biru pastel
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white, // Ubah warna latar belakang menjadi putih
+        backgroundColor:
+            Colors.white, // Ubah warna latar belakang menjadi putih
         elevation: 4.0, // Tambahkan shadow pada app bar
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
             child: TextField(
               onChanged: (value) {
                 setState(() {
@@ -49,13 +52,25 @@ class _ProductCatalogState extends State<ProductCatalog> {
                 });
               },
               decoration: InputDecoration(
-                hintText: "Cari produk kamu disini",
-                hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                hintText: "Cari produk kamu di sini",
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.grey,
+                  fontSize: 14, // Ukuran font placeholder diperkecil
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                  size: 20, // Ukuran ikon diperkecil
+                ),
                 filled: true,
                 fillColor: Colors.grey.shade200,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 10, // Mengurangi tinggi padding box
+                  horizontal: 12, // Mengurangi padding horizontal
+                ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(10), // Radius tetap proporsional
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -100,7 +115,8 @@ class _ProductCatalogState extends State<ProductCatalog> {
                 // Filter produk berdasarkan searchQuery
                 final filteredProducts = snapshot.data!.docs.where((product) {
                   final name = product['name'].toString().toLowerCase();
-                  return name.contains(searchQuery); // Filter berdasarkan nama produk
+                  return name
+                      .contains(searchQuery); // Filter berdasarkan nama produk
                 }).toList();
 
                 if (filteredProducts.isEmpty) {
@@ -131,12 +147,12 @@ class _ProductCatalogState extends State<ProductCatalog> {
                     final product = Barang.fromFirestore(productDoc);
 
                     return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8),
+                      margin: EdgeInsets.symmetric(vertical: 9),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -149,14 +165,14 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                     product.name,
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                   ),
                                   SizedBox(height: 8),
                                   Text(
                                     product.description,
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.grey[700],
                                     ),
                                   ),
@@ -164,15 +180,15 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                   Text(
                                     "Rp${NumberFormat('#,###', 'id_ID').format(product.sellPrice)}",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  SizedBox(height: 12),
+                                  SizedBox(height: 10),
                                   Text(
                                     "Stok: ${product.stock}",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.grey[700],
                                     ),
                                   ),
@@ -192,44 +208,54 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                           fit: BoxFit.cover,
                                         )
                                       : product.imagePath.isNotEmpty &&
-                                              File(product.imagePath).existsSync()
+                                              File(product.imagePath)
+                                                  .existsSync()
                                           ? Image.file(
-                                              File(product.imagePath), // File untuk Mobile
+                                              File(product
+                                                  .imagePath), // File untuk Mobile
                                               width: 80,
                                               height: 80,
                                               fit: BoxFit.cover,
                                             )
                                           : Icon(
                                               Icons.broken_image,
-                                              size: 80,
+                                              size: 90,
                                               color: Colors.grey,
                                             ),
                                 ),
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit, color: Colors.blue),
+                                      icon:
+                                          Icon(Icons.edit, color: Colors.blue, size: 20),
                                       onPressed: () {
                                         _showProductForm(
                                             context, productDoc.id, product);
                                       },
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
+                                      icon:
+                                          Icon(Icons.delete, color: Colors.red, size: 20),
                                       onPressed: () async {
                                         try {
-                                          final confirm = await showDialog<bool>(
+                                          final confirm =
+                                              await showDialog<bool>(
                                             context: context,
                                             builder: (context) => AlertDialog(
                                               title: Text("Hapus Produk"),
-                                              content: Text("Apakah Anda yakin ingin menghapus produk '${product.name}'?"),
+                                              content: Text(
+                                                  "Apakah Anda yakin ingin menghapus produk '${product.name}'?"),
                                               actions: [
                                                 TextButton(
-                                                  onPressed: () => Navigator.pop(context, false),
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, false),
                                                   child: Text("Batal"),
                                                 ),
                                                 TextButton(
-                                                  onPressed: () => Navigator.pop(context, true),
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, true),
                                                   child: Text("Hapus"),
                                                 ),
                                               ],
@@ -239,10 +265,15 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                           if (confirm == true) {
                                             try {
                                               // Hapus produk dari Firestore
-                                              await firestore.collection('products').doc(productDoc.id).delete();
+                                              await firestore
+                                                  .collection('products')
+                                                  .doc(productDoc.id)
+                                                  .delete();
 
                                               // Tambahkan ke history
-                                              await firestore.collection('product_history').add({
+                                              await firestore
+                                                  .collection('product_history')
+                                                  .add({
                                                 'type': 'delete',
                                                 'name': product.name,
                                                 'timestamp': Timestamp.now(),
@@ -250,20 +281,28 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                               });
 
                                               // Tampilkan pesan berhasil
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Produk '${product.name}' berhasil dihapus")),
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        "Produk '${product.name}' berhasil dihapus")),
                                               );
                                             } catch (e) {
                                               // Log error Firestore
-                                              print("Gagal menghapus produk dari Firestore: $e");
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text("Gagal menghapus produk: $e")),
+                                              print(
+                                                  "Gagal menghapus produk dari Firestore: $e");
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        "Gagal menghapus produk: $e")),
                                               );
                                             }
                                           }
                                         } catch (e) {
                                           // Log error dialog
-                                          print("Kesalahan saat menampilkan dialog konfirmasi: $e");
+                                          print(
+                                              "Kesalahan saat menampilkan dialog konfirmasi: $e");
                                         }
                                       },
                                     ),
@@ -308,7 +347,10 @@ class _ProductCatalogState extends State<ProductCatalog> {
       ),
     ).then((updatedProduct) {
       if (updatedProduct != null) {
-        firestore.collection('products').doc(productId).set(updatedProduct.toMap());
+        firestore
+            .collection('products')
+            .doc(productId)
+            .set(updatedProduct.toMap());
       }
     });
   }

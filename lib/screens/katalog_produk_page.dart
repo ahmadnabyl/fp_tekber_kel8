@@ -33,7 +33,7 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
           "Katalog Produk",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: const Color(0xFF6F92D8),
           ),
         ),
@@ -77,14 +77,14 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
                     "Pertanyaan yang sering diajukan seputar produk",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.black,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             ...items.map((item) => DropdownItem(item: item)).toList(),
           ],
         ),
@@ -142,7 +142,7 @@ class _DropdownItemState extends State<DropdownItem> {
             widget.item.title,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
-              fontSize: 14.0,
+              fontSize: 13.5,
               color: const Color(0xFF333333),
             ),
           ),
@@ -154,7 +154,7 @@ class _DropdownItemState extends State<DropdownItem> {
                 widget.item.description,
                 style: GoogleFonts.poppins(
                   color: Colors.grey[700],
-                  fontSize: 14.0,
+                  fontSize: 12.0,
                 ),
               ),
             ),

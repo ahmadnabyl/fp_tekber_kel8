@@ -14,7 +14,7 @@ class PusatBantuan extends StatelessWidget {
           "Pusat Bantuan",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: const Color(0xFF6F92D8), // Warna untuk judul navbar
           ),
         ),
@@ -61,19 +61,19 @@ class PusatBantuan extends StatelessWidget {
                       Text(
                         "Pertanyaan yang sering diajukan",
                         style: GoogleFonts.poppins(
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.black,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 40),
                 Text(
                   "Info Umum",
                   style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF6F92D8),
                   ),
                 ),
@@ -160,13 +160,13 @@ class HelpButton extends StatelessWidget {
               child: Text(
                 label,
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF333333),
+                  color: const Color.fromARGB(255, 51, 51, 51),
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
+            Icon(Icons.arrow_forward_ios, size: 15, color: Colors.grey),
           ],
         ),
       ),

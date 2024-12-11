@@ -33,7 +33,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
           "Penjualan",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: const Color(0xFF6F92D8), // Warna biru
           ),
         ),
@@ -68,7 +68,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
                   Text(
                     "FAQ",
                     style: GoogleFonts.poppins(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF6F92D8), // Warna biru
                     ),
@@ -80,7 +80,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
                       "Pertanyaan yang sering diajukan seputar penjualan",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.black,
                       ),
                     ),
@@ -88,7 +88,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             ...sales.map((sale) => SaleDropdownItem(item: sale)).toList(),
           ],
         ),
@@ -134,7 +134,7 @@ class SaleDropdownItem extends StatelessWidget {
           item.title,
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 14.0,
+            fontSize: 13.5,
             color: const Color(0xFF333333), // Warna teks utama
           ),
         ),
@@ -145,7 +145,7 @@ class SaleDropdownItem extends StatelessWidget {
               item.description,
               style: GoogleFonts.poppins(
                 color: Colors.grey[700],
-                fontSize: 14.0,
+                fontSize: 12.0,
               ),
             ),
           ),
