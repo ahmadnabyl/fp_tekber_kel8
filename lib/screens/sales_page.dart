@@ -14,7 +14,8 @@ class SalesPage extends StatefulWidget {
 
 class _SalesPageState extends State<SalesPage> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  Map<String, int> _quantities = {}; // Untuk melacak jumlah kuantitas setiap produk
+  Map<String, int> _quantities =
+      {}; // Untuk melacak jumlah kuantitas setiap produk
   double _totalPrice = 0.0;
   String searchQuery = ""; // Tambahkan variabel untuk pencarian
 
@@ -63,7 +64,8 @@ class _SalesPageState extends State<SalesPage> {
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()), // Kembali ke HomePage
+              MaterialPageRoute(
+                  builder: (context) => HomePage()), // Kembali ke HomePage
               (route) => false,
             );
           },
@@ -72,7 +74,7 @@ class _SalesPageState extends State<SalesPage> {
           "Produk Penjualan",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: Color(0xFF6F92D8),
           ),
         ),
@@ -84,19 +86,32 @@ class _SalesPageState extends State<SalesPage> {
         children: [
           // TextField untuk Pencarian
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: TextField(
               onChanged: (value) {
                 setState(() {
-                  searchQuery = value.toLowerCase(); // Simpan pencarian dalam lowercase
+                  searchQuery =
+                      value.toLowerCase(); // Simpan pencarian dalam lowercase
                 });
               },
               decoration: InputDecoration(
-                hintText: "Cari produk kamu disini",
-                hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                hintText: "Cari produk kamu di sini",
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.grey,
+                  fontSize: 14, // Ukuran font placeholder lebih kecil
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                  size: 20, // Ukuran ikon diperkecil
+                ),
                 filled: true,
                 fillColor: Colors.grey.shade200,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 10, // Kurangi tinggi padding
+                  horizontal: 12, // Kurangi padding horizontal
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -143,7 +158,8 @@ class _SalesPageState extends State<SalesPage> {
                 // Filter produk berdasarkan searchQuery
                 final filteredProducts = snapshot.data!.docs.where((product) {
                   final name = product['name'].toString().toLowerCase();
-                  return name.contains(searchQuery); // Filter berdasarkan nama produk
+                  return name
+                      .contains(searchQuery); // Filter berdasarkan nama produk
                 }).toList();
 
                 if (filteredProducts.isEmpty) {
@@ -215,22 +231,22 @@ class _SalesPageState extends State<SalesPage> {
                                     product['name'],
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                  SizedBox(height: 8),
+                                  SizedBox(height: 5),
                                   Text(
                                     product['description'],
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.grey[700],
                                     ),
                                   ),
-                                  SizedBox(height: 8),
+                                  SizedBox(height: 5),
                                   Text(
                                     "Rp${NumberFormat('#,###', 'id_ID').format(product['sellPrice'])}",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -238,7 +254,7 @@ class _SalesPageState extends State<SalesPage> {
                                   Text(
                                     "Stok Tersedia: $availableStock",
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.grey[700],
                                     ),
                                   ),
@@ -257,7 +273,32 @@ class _SalesPageState extends State<SalesPage> {
                                             _updateTotalPrice(filteredProducts);
                                           }
                                         },
-                                        child: Text("Tambah"),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color.fromARGB(
+                                              255,
+                                              125,
+                                              163,
+                                              237), // Warna latar biru pastel
+                                          foregroundColor:
+                                              Colors.white, // Warna teks putih
+                                          minimumSize: Size(10,
+                                              10), // Ukuran tombol lebih kecil
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 11,
+                                              vertical: 7), // Padding tombol
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                8), // Radius tidak terlalu bundar
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "Tambah",
+                                          style: GoogleFonts.poppins(
+                                            fontSize:
+                                                11, // Ukuran teks sedikit lebih kecil
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                       )
                                     : Row(
                                         children: [
@@ -266,26 +307,32 @@ class _SalesPageState extends State<SalesPage> {
                                             onPressed: () {
                                               if (quantity > 0) {
                                                 setState(() {
-                                                  _quantities[productId] = quantity - 1;
+                                                  _quantities[productId] =
+                                                      quantity - 1;
                                                 });
-                                                _updateTotalPrice(filteredProducts);
+                                                _updateTotalPrice(
+                                                    filteredProducts);
                                               }
                                             },
                                           ),
                                           Text(
                                             "$quantity",
-                                            style: GoogleFonts.poppins(fontSize: 16),
+                                            style: GoogleFonts.poppins(
+                                                fontSize: 16),
                                           ),
                                           IconButton(
                                             icon: Icon(Icons.add),
                                             onPressed: () {
                                               if (quantity < availableStock) {
                                                 setState(() {
-                                                  _quantities[productId] = quantity + 1;
+                                                  _quantities[productId] =
+                                                      quantity + 1;
                                                 });
-                                                _updateTotalPrice(filteredProducts);
+                                                _updateTotalPrice(
+                                                    filteredProducts);
                                               } else {
-                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
                                                   SnackBar(
                                                     content: Text("Stok habis"),
                                                   ),
@@ -335,38 +382,57 @@ class _SalesPageState extends State<SalesPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-ElevatedButton(
-  onPressed: () async {
-    final selectedItems = _quantities.entries
-        .where((entry) => entry.value > 0)
-        .map((entry) {
-          final product = products.firstWhere((p) => p.id == entry.key);
-          return {
-            'id': product.id, // Tambahkan ID produk untuk pembaruan stok
-            'name': product['name'],
-            'quantity': entry.value,
-            'price': product['sellPrice'],
-          };
-        })
-        .toList();
+                      ElevatedButton(
+                        onPressed: () async {
+                          final selectedItems = _quantities.entries
+                              .where((entry) => entry.value > 0)
+                              .map((entry) {
+                            final product =
+                                products.firstWhere((p) => p.id == entry.key);
+                            return {
+                              'id': product.id,
+                              'name': product['name'],
+                              'quantity': entry.value,
+                              'price': product['sellPrice'],
+                            };
+                          }).toList();
 
-    final paymentCompleted = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentPage(
-          totalAmount: _totalPrice,
-          items: selectedItems,
-        ),
-      ),
-    );
+                          final paymentCompleted = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentPage(
+                                totalAmount: _totalPrice,
+                                items: selectedItems,
+                              ),
+                            ),
+                          );
 
-    // Perbarui stok hanya jika pembayaran selesai
-    if (paymentCompleted == true) {
-      await _updateStockAfterPayment();
-    }
-  },
-  child: Text("Bayar"),
-),
+                          if (paymentCompleted == true) {
+                            await _updateStockAfterPayment();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Color.fromARGB(255, 98, 193, 99), // Warna latar biru pastel
+                          foregroundColor: Colors.white, // Warna teks putih
+                          minimumSize: Size(80,
+                              20), // Ukuran tombol sedikit lebih besar dari "Tambah"
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 13, vertical: 8), // Padding tombol
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                8), // Radius tidak terlalu bundar
+                          ),
+                        ),
+                        child: Text(
+                          "Bayar",
+                          style: GoogleFonts.poppins(
+                            fontSize:
+                                13, // Ukuran teks sama seperti tombol "Tambah"
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -376,7 +442,7 @@ ElevatedButton(
             },
           ),
         ],
-      ), 
+      ),
     );
   }
 }

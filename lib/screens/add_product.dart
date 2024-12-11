@@ -65,30 +65,12 @@ class _AddProductPageState extends State<AddProductPage> {
         final firestore = FirebaseFirestore.instance;
 
         if (widget.product != null) {
-          // Update produk yang sudah ada
           await firestore
               .collection('products')
               .doc(widget.product!.id)
               .update(newProduct.toMap());
-
-          // Tambahkan riwayat perubahan
-          await firestore.collection('product_history').add({
-            'type': 'edit',
-            'name': newProduct.name,
-            'timestamp': Timestamp.now(),
-            'changes': _generateChangeList(widget.product!, newProduct),
-          });
         } else {
-          // Tambahkan produk baru
-          final newDoc = await firestore.collection('products').add(newProduct.toMap());
-
-          // Tambahkan riwayat penambahan
-          await firestore.collection('product_history').add({
-            'type': 'add',
-            'name': newProduct.name,
-            'timestamp': Timestamp.now(),
-            'changes': [], // Tidak ada perubahan untuk produk baru
-          });
+          await firestore.collection('products').add(newProduct.toMap());
         }
 
         Navigator.pop(context);
@@ -104,50 +86,25 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  List<String> _generateChangeList(Barang oldProduct, Barang newProduct) {
-  final changes = <String>[];
-
-  if (oldProduct.name != newProduct.name) {
-    changes.add("Nama diubah dari '${oldProduct.name}' ke '${newProduct.name}'");
-  }
-  if (oldProduct.buyPrice != newProduct.buyPrice) {
-    changes.add("Harga Beli diubah dari ${oldProduct.buyPrice} ke ${newProduct.buyPrice}");
-  }
-  if (oldProduct.sellPrice != newProduct.sellPrice) {
-    changes.add("Harga Jual diubah dari ${oldProduct.sellPrice} ke ${newProduct.sellPrice}");
-  }
-  if (oldProduct.stock != newProduct.stock) {
-    changes.add("Stok diubah dari ${oldProduct.stock} ke ${newProduct.stock}");
-  }
-  if (oldProduct.description != newProduct.description) {
-    changes.add("Deskripsi diubah");
-  }
-
-  return changes;
-}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background gradasi biru ke biru muda
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF4A90E2), Color.fromARGB(255, 156, 205, 239)], // Gradasi biru ke biru muda
+                colors: [Color(0xFF4A90E2), Color.fromARGB(255, 156, 205, 239)],
                 begin: Alignment.topLeft,
-                end: Alignment.topRight, // Dari kiri ke kanan atas
+                end: Alignment.topRight,
               ),
             ),
           ),
-          // Konten aplikasi
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 40, left: 20, right: 20, bottom: 20),
+                padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -160,8 +117,8 @@ class _AddProductPageState extends State<AddProductPage> {
                       widget.product != null ? "Edit Produk" : "Tambah Produk",
                       style: GoogleFonts.poppins(
                         color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -170,23 +127,16 @@ class _AddProductPageState extends State<AddProductPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9), // Transparansi untuk efek tembus pandang
+                    color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40),
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, -3), // Shadow ke atas
-                      ),
-                    ],
                   ),
                   child: ListView(
                     padding: EdgeInsets.all(16.0),
                     children: [
+                      SizedBox(height: 16), // Menurunkan field nama produk
                       _buildTextField(_nameController, "Nama Produk", TextInputType.text),
                       SizedBox(height: 16),
                       _buildTextField(_buyPriceController, "Harga Beli", TextInputType.number),
@@ -198,56 +148,57 @@ class _AddProductPageState extends State<AddProductPage> {
                       _buildTextField(
                           _descriptionController, "Deskripsi", TextInputType.text,
                           maxLines: 3),
-                      SizedBox(height: 16),
+                      SizedBox(height: 24),
                       GestureDetector(
                         onTap: _pickImageFromCamera,
                         child: Center(
                           child: Container(
-                            padding: EdgeInsets.all(12),
+                            width: 120,
+                            height: 120,
                             decoration: BoxDecoration(
                               color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             child: _image != null
                                 ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(10),
                                     child: Image.file(
                                       _image!,
-                                      width: 150,
-                                      height: 150,
                                       fit: BoxFit.cover,
                                     ),
                                   )
                                 : Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.camera_alt, size: 40, color: Colors.grey),
-                                      SizedBox(height: 8),
+                                      Icon(Icons.camera_alt, size: 30, color: Colors.grey),
+                                      SizedBox(height: 4),
                                       Text(
-                                        "Ambil Foto Produk",
-                                        style: GoogleFonts.poppins(color: Colors.grey),
+                                        "Ambil Foto",
+                                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                                       ),
                                     ],
                                   ),
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _saveProduct,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF6F92D8),
-                          minimumSize: Size(100, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      SizedBox(height: 24),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _saveProduct,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF6F92D8),
+                            minimumSize: Size(140, 45),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          widget.product != null ? "Simpan Perubahan" : "Simpan Produk",
-                          style: GoogleFonts.poppins(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                          child: Text(
+                            widget.product != null ? "Simpan Perubahan" : "Simpan Produk",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -270,12 +221,12 @@ class _AddProductPageState extends State<AddProductPage> {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+        labelStyle: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
         hintText: 'Masukkan $label',
-        hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+        hintStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade400),
         filled: true,
         fillColor: Colors.grey.shade200,
-        contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

@@ -19,7 +19,7 @@ class _ProductHistoryState extends State<ProductHistory> {
           "Riwayat Produk",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
             color: Color(0xFF6F92D8), // Warna baru untuk judul
           ),
         ),
@@ -28,7 +28,10 @@ class _ProductHistoryState extends State<ProductHistory> {
         elevation: 4.0,
       ),
       body: StreamBuilder(
-        stream: firestore.collection('product_history').orderBy('timestamp', descending: true).snapshots(),
+        stream: firestore
+            .collection('product_history')
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -94,7 +97,81 @@ class _ProductHistoryState extends State<ProductHistory> {
                   trailing: IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () async {
-                      await firestore.collection('product_history').doc(historyDoc.id).delete();
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(
+                            "Hapus Riwayat",
+                            textAlign: TextAlign.center, // Teks judul di tengah
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          content: Text(
+                            "Apakah kamu yakin untuk menghapus riwayat produk '${history['name']}'?",
+                            textAlign:
+                                TextAlign.center, // Teks konten di tengah
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                            ),
+                          ),
+                          actionsAlignment: MainAxisAlignment.center,
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey.shade300,
+                                elevation: 0,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                              ),
+                              child: Text(
+                                "Tidak",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                elevation: 0,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                              ),
+                              child: Text(
+                                "Ya",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+
+                      if (confirm == true) {
+                        await firestore
+                            .collection('product_history')
+                            .doc(historyDoc.id)
+                            .delete();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Riwayat '${history['name']}' berhasil dihapus",
+                            ),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ),
@@ -113,16 +190,15 @@ class _ProductHistoryState extends State<ProductHistory> {
     // Detail tambahan untuk penjualan
     String saleDetail = '';
     if (history['type'] == 'sale') {
-      saleDetail = '\nJumlah Terjual: ${history['quantitySold'] ?? 0}'
-                  '\nTotal Harga: Rp${history['totalPrice']?.toStringAsFixed(2) ?? '0.00'}';
+      saleDetail =
+          '\nJumlah Terjual: ${history['quantitySold'] ?? 0}\nTotal Harga: Rp${history['totalPrice']?.toStringAsFixed(2) ?? '0.00'}';
     }
 
     // Jika ada daftar perubahan
     String changesDetail = '';
     if (history['changes'] != null && history['changes'] is List) {
-      changesDetail = (history['changes'] as List)
-          .map((change) => '- $change')
-          .join('\n');
+      changesDetail =
+          (history['changes'] as List).map((change) => '- $change').join('\n');
     }
 
     return Text(
@@ -149,53 +225,5 @@ class _ProductHistoryState extends State<ProductHistory> {
   String _formatTimestamp(Timestamp timestamp) {
     final dateTime = timestamp.toDate();
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
-  }
-
-  Future<void> addHistory({
-    required String type,
-    required String name,
-    List<String>? changes,
-  }) async {
-    final timestamp = Timestamp.now();
-    try {
-      await firestore.collection('product_history').add({
-        'type': type,
-        'name': name,
-        'timestamp': timestamp,
-        'changes': changes ?? [],
-      });
-    } catch (e) {
-      print("Gagal menambahkan riwayat: $e");
-    }
-  }
-
-  Future<void> editHistory({
-    required String name,
-    required List<String> changes,
-  }) async {
-    await addHistory(type: 'edit', name: name, changes: changes);
-  }
-
-  Future<void> deleteHistory(String name) async {
-    await addHistory(type: 'delete', name: name);
-  }
-
-  Future<void> recordSale({
-    required String productName,
-    required int quantitySold,
-    required double totalPrice,
-  }) async {
-    final timestamp = Timestamp.now();
-    try {
-      await firestore.collection('product_history').add({
-        'type': 'sale',
-        'name': productName,
-        'quantitySold': quantitySold,
-        'totalPrice': totalPrice,
-        'timestamp': timestamp,
-      });
-    } catch (e) {
-      print("Gagal mencatat penjualan: $e");
-    }
   }
 }

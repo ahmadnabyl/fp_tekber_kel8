@@ -246,20 +246,20 @@ class _PaymentPageState extends State<PaymentPage> {
                     ElevatedButton(
                       onPressed: () => _setAmount(widget.totalAmount),
                       child: Text("Uang Pas",
-                          style: GoogleFonts.poppins(fontSize: 12)),
+                          style: GoogleFonts.poppins(fontSize: 11)),
                     ),
                     ElevatedButton(
                       onPressed: () => _setAmount(recommendations[0]),
                       child: Text(
                         "Rp${NumberFormat('#,###', 'id_ID').format(recommendations[0])}",
-                        style: GoogleFonts.poppins(fontSize: 12),
+                        style: GoogleFonts.poppins(fontSize: 11),
                       ),
                     ),
                     ElevatedButton(
                       onPressed: () => _setAmount(recommendations[1]),
                       child: Text(
                         "Rp${NumberFormat('#,###', 'id_ID').format(recommendations[1])}",
-                        style: GoogleFonts.poppins(fontSize: 12),
+                        style: GoogleFonts.poppins(fontSize: 11),
                       ),
                     ),
                   ],
@@ -300,14 +300,14 @@ class _PaymentPageState extends State<PaymentPage> {
                           Text(
                             "Pembayaran Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}",
                             style: GoogleFonts.poppins(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: 10),
                           Text(
                             "Konfirmasi pembayaran dengan total Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)} telah dibayarkan oleh pembeli.",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.poppins(
-                                fontSize: 14, color: Colors.grey),
+                                fontSize: 12, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -410,7 +410,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: const Color.fromARGB(255, 238, 115, 106),
                                       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
@@ -427,7 +427,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                       await _generatePDF();
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
+                                      backgroundColor: const Color.fromARGB(255, 119, 158, 238),
                                       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),

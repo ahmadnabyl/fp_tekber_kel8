@@ -226,39 +226,94 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon:
-                                          Icon(Icons.edit, color: Colors.blue, size: 20),
+                                      icon: Icon(Icons.edit,
+                                          color: Colors.blue, size: 20),
                                       onPressed: () {
                                         _showProductForm(
                                             context, productDoc.id, product);
                                       },
                                     ),
                                     IconButton(
-                                      icon:
-                                          Icon(Icons.delete, color: Colors.red, size: 20),
+                                      icon: Icon(Icons.delete,
+                                          color: Colors.red, size: 20),
                                       onPressed: () async {
                                         try {
                                           final confirm =
                                               await showDialog<bool>(
                                             context: context,
                                             builder: (context) => AlertDialog(
-                                              title: Text("Hapus Produk"),
+                                              title: Text(
+                                                "Hapus Produk",
+                                                textAlign: TextAlign
+                                                    .center, // Teks judul di tengah
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                               content: Text(
-                                                  "Apakah Anda yakin ingin menghapus produk '${product.name}'?"),
+                                                "Apakah kamu yakin untuk menghapus produk '${product.name}'?",
+                                                textAlign: TextAlign
+                                                    .center, // Teks konten di tengah
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              actionsAlignment:
+                                                  MainAxisAlignment.center,
                                               actions: [
-                                                TextButton(
+                                                ElevatedButton(
                                                   onPressed: () =>
                                                       Navigator.pop(
                                                           context, false),
-                                                  child: Text("Batal"),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.grey.shade300,
+                                                    elevation: 0,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 20,
+                                                            vertical: 10),
+                                                  ),
+                                                  child: Text(
+                                                    "Tidak",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
                                                 ),
-                                                TextButton(
+                                                ElevatedButton(
                                                   onPressed: () =>
                                                       Navigator.pop(
                                                           context, true),
-                                                  child: Text("Hapus"),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors.red,
+                                                    elevation: 0,
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 20,
+                                                            vertical: 10),
+                                                  ),
+                                                  child: Text(
+                                                    "Ya",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
                                             ),
                                           );
 
@@ -277,30 +332,28 @@ class _ProductCatalogState extends State<ProductCatalog> {
                                                 'type': 'delete',
                                                 'name': product.name,
                                                 'timestamp': Timestamp.now(),
-                                                'changes': []
+                                                'changes': [],
                                               });
 
-                                              // Tampilkan pesan berhasil
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                    content: Text(
-                                                        "Produk '${product.name}' berhasil dihapus")),
+                                                  content: Text(
+                                                      "Produk '${product.name}' berhasil dihapus"),
+                                                ),
                                               );
                                             } catch (e) {
-                                              // Log error Firestore
-                                              print(
-                                                  "Gagal menghapus produk dari Firestore: $e");
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
-                                                    content: Text(
-                                                        "Gagal menghapus produk: $e")),
+                                                  content: Text(
+                                                      "Gagal menghapus produk: $e"),
+                                                ),
                                               );
                                             }
                                           }
                                         } catch (e) {
-                                          // Log error dialog
+                                          // Handle error
                                           print(
                                               "Kesalahan saat menampilkan dialog konfirmasi: $e");
                                         }
@@ -321,17 +374,23 @@ class _ProductCatalogState extends State<ProductCatalog> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddProductPage()),
-          );
-        },
-        backgroundColor: Color(0xFF6F92D8),
-        child: Icon(Icons.add, color: Colors.white),
-        shape: CircleBorder(),
-        tooltip: "Tambah Produk",
+      floatingActionButton: Transform.translate(
+        offset: Offset(-10, -20), // Memindahkan tombol ke kiri dan naik
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddProductPage()),
+            );
+          },
+          backgroundColor: Color(0xFF6F92D8), // Warna biru pastel
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+                10), // Tombol berbentuk kotak dengan radius
+          ),
+          child: Icon(Icons.add, color: Colors.white), // Ikon tombol
+          tooltip: "Tambah Produk", // Tooltip untuk tombol
+        ),
       ),
     );
   }

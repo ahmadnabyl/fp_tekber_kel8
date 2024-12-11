@@ -91,7 +91,7 @@ class WalletPage extends StatelessWidget {
                           "Tunai ${index + 1}",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w600,
-                            fontSize: 18,
+                            fontSize: 16,
                             color: Colors.green[700],
                           ),
                         ),
@@ -101,7 +101,7 @@ class WalletPage extends StatelessWidget {
                               "Rp${NumberFormat('#,###', 'id_ID').format(amount)}",
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 16,
                                 color: Colors.green[700],
                               ),
                             ),
