@@ -208,8 +208,16 @@ class _SalesPageState extends State<SalesPage> {
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          Icon(
+                                        Icons.broken_image,
+                                        size: 80,
+                                        color: Colors.grey,
+                                      ),
                                     )
-                                  : product['imagePath'].isNotEmpty
+                                  : product['imagePath'].isNotEmpty &&
+                                          File(product['imagePath'])
+                                              .existsSync()
                                       ? Image.file(
                                           File(product['imagePath']),
                                           width: 80,
@@ -217,7 +225,7 @@ class _SalesPageState extends State<SalesPage> {
                                           fit: BoxFit.cover,
                                         )
                                       : Icon(
-                                          Icons.inventory,
+                                          Icons.broken_image,
                                           size: 80,
                                           color: Colors.grey,
                                         ),
