@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductHistory extends StatefulWidget {
+  final String userId; // Tambahkan userId sebagai parameter
+
+  ProductHistory({required this.userId});
+
   @override
   _ProductHistoryState createState() => _ProductHistoryState();
 }
@@ -29,6 +33,8 @@ class _ProductHistoryState extends State<ProductHistory> {
       ),
       body: StreamBuilder(
         stream: firestore
+            .collection('users')
+            .doc(widget.userId) // Akses berdasarkan userId
             .collection('product_history')
             .orderBy('timestamp', descending: true)
             .snapshots(),
@@ -161,6 +167,8 @@ class _ProductHistoryState extends State<ProductHistory> {
 
                       if (confirm == true) {
                         await firestore
+                            .collection('users')
+                            .doc(widget.userId) // Akses berdasarkan userId
                             .collection('product_history')
                             .doc(historyDoc.id)
                             .delete();

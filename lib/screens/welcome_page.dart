@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
+import 'landing_page.dart'; // Import LandingPage
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -22,12 +22,12 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
 
-    // Beralih ke halaman utama setelah 6 detik
+    // Beralih ke halaman LandingPage setelah 4 detik
     Future.delayed(Duration(seconds: 4), () {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
+          pageBuilder: (context, animation, secondaryAnimation) => LandingPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(0.0, 1.0);
             const end = Offset.zero;

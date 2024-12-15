@@ -7,8 +7,9 @@ import '../models/barang.dart';
 
 class AddProductPage extends StatefulWidget {
   final Barang? product;
+  final String userId; // Tambahkan userId sebagai parameter
 
-  AddProductPage({this.product});
+  AddProductPage({this.product, required this.userId});
 
   @override
   _AddProductPageState createState() => _AddProductPageState();
@@ -38,7 +39,8 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<void> _pickImageFromCamera() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -46,46 +48,82 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  Future<void> _saveProduct() async {
-    if (_nameController.text.isNotEmpty &&
-        _buyPriceController.text.isNotEmpty &&
-        _sellPriceController.text.isNotEmpty &&
-        _stockController.text.isNotEmpty) {
-      // Buat objek Barang baru
-      final newProduct = Barang(
-        name: _nameController.text,
-        buyPrice: int.parse(_buyPriceController.text),
-        sellPrice: int.parse(_sellPriceController.text),
-        stock: int.parse(_stockController.text),
-        description: _descriptionController.text,
-        imagePath: _image?.path ?? '', // Path gambar (opsional)
-      );
+Future<void> _saveProduct() async {
+  if (_nameController.text.isNotEmpty &&
+      _buyPriceController.text.isNotEmpty &&
+      _sellPriceController.text.isNotEmpty &&
+      _stockController.text.isNotEmpty) {
+    // Buat objek Barang baru
+    final newProduct = Barang(
+      name: _nameController.text,
+      buyPrice: int.parse(_buyPriceController.text),
+      sellPrice: int.parse(_sellPriceController.text),
+      stock: int.parse(_stockController.text),
+      description: _descriptionController.text,
+      imagePath: _image?.path ?? '', // Path gambar (opsional)
+    );
 
-      try {
-        final firestore = FirebaseFirestore.instance;
+    try {
+      final firestore = FirebaseFirestore.instance;
 
-        if (widget.product != null) {
-          await firestore
-              .collection('products')
-              .doc(widget.product!.id)
-              .update(newProduct.toMap());
-        } else {
-          await firestore.collection('products').add(newProduct.toMap());
-        }
+      if (widget.product != null) {
+        // Update produk yang sudah ada
+        await firestore
+            .collection('users')
+            .doc(widget.userId) // Gunakan userId untuk menentukan user spesifik
+            .collection('products')
+            .doc(widget.product!.id) // Akses dokumen produk
+            .update(newProduct.toMap());
 
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menyimpan produk: $e')),
-        );
+        // Tambahkan ke riwayat produk (update)
+        await firestore
+            .collection('users')
+            .doc(widget.userId)
+            .collection('product_history')
+            .add({
+          'type': 'edit',
+          'name': _nameController.text,
+          'timestamp': Timestamp.now(),
+          'changes': [
+            'Harga beli: ${widget.product!.buyPrice} -> ${newProduct.buyPrice}',
+            'Harga jual: ${widget.product!.sellPrice} -> ${newProduct.sellPrice}',
+            'Stok: ${widget.product!.stock} -> ${newProduct.stock}',
+          ],
+        });
+      } else {
+        // Tambahkan produk baru ke subkoleksi 'products' pengguna
+        final productDoc = await firestore
+            .collection('users')
+            .doc(widget.userId)
+            .collection('products')
+            .add(newProduct.toMap());
+
+        // Tambahkan ke riwayat produk (add)
+        await firestore
+            .collection('users')
+            .doc(widget.userId)
+            .collection('product_history')
+            .add({
+          'type': 'add',
+          'name': _nameController.text,
+          'timestamp': Timestamp.now(),
+          'productId': productDoc.id,
+          'stock': newProduct.stock,
+        });
       }
-    } else {
+
+      Navigator.pop(context);
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Mohon lengkapi semua data produk!')),
+        SnackBar(content: Text('Gagal menyimpan produk: $e')),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Mohon lengkapi semua data produk!')),
+    );
   }
-
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,16 +175,20 @@ class _AddProductPageState extends State<AddProductPage> {
                     padding: EdgeInsets.all(16.0),
                     children: [
                       SizedBox(height: 16), // Menurunkan field nama produk
-                      _buildTextField(_nameController, "Nama Produk", TextInputType.text),
+                      _buildTextField(
+                          _nameController, "Nama Produk", TextInputType.text),
                       SizedBox(height: 16),
-                      _buildTextField(_buyPriceController, "Harga Beli", TextInputType.number),
+                      _buildTextField(_buyPriceController, "Harga Beli",
+                          TextInputType.number),
                       SizedBox(height: 16),
-                      _buildTextField(_sellPriceController, "Harga Jual", TextInputType.number),
-                      SizedBox(height: 16),
-                      _buildTextField(_stockController, "Stok", TextInputType.number),
+                      _buildTextField(_sellPriceController, "Harga Jual",
+                          TextInputType.number),
                       SizedBox(height: 16),
                       _buildTextField(
-                          _descriptionController, "Deskripsi", TextInputType.text,
+                          _stockController, "Stok", TextInputType.number),
+                      SizedBox(height: 16),
+                      _buildTextField(_descriptionController, "Deskripsi",
+                          TextInputType.text,
                           maxLines: 3),
                       SizedBox(height: 24),
                       GestureDetector(
@@ -170,11 +212,13 @@ class _AddProductPageState extends State<AddProductPage> {
                                 : Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.camera_alt, size: 30, color: Colors.grey),
+                                      Icon(Icons.camera_alt,
+                                          size: 30, color: Colors.grey),
                                       SizedBox(height: 4),
                                       Text(
                                         "Ambil Foto",
-                                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 12, color: Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -193,7 +237,9 @@ class _AddProductPageState extends State<AddProductPage> {
                             ),
                           ),
                           child: Text(
-                            widget.product != null ? "Simpan Perubahan" : "Simpan Produk",
+                            widget.product != null
+                                ? "Simpan Perubahan"
+                                : "Simpan Produk",
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -214,7 +260,8 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Widget _buildTextField(TextEditingController controller, String label,
-      TextInputType keyboardType, {int maxLines = 1}) {
+      TextInputType keyboardType,
+      {int maxLines = 1}) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -223,7 +270,8 @@ class _AddProductPageState extends State<AddProductPage> {
         labelText: label,
         labelStyle: GoogleFonts.poppins(fontSize: 13, color: Colors.grey),
         hintText: 'Masukkan $label',
-        hintStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade400),
+        hintStyle:
+            GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade400),
         filled: true,
         fillColor: Colors.grey.shade200,
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),

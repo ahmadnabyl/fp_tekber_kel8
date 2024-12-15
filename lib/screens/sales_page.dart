@@ -1,23 +1,25 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart'; // Untuk format ribuan
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
-import 'package:flutter/foundation.dart' show kIsWeb; // Tambahkan import ini
-import 'payment_page.dart'; // Pastikan untuk mengimpor PaymentPage
-import 'homepage.dart'; // Impor halaman utama
+import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'payment_page.dart';
+import 'homepage.dart';
 
 class SalesPage extends StatefulWidget {
+  final String userId; // Menambahkan userId sebagai parameter
+  SalesPage({required this.userId});
+
   @override
   _SalesPageState createState() => _SalesPageState();
 }
 
 class _SalesPageState extends State<SalesPage> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  Map<String, int> _quantities =
-      {}; // Untuk melacak jumlah kuantitas setiap produk
+  Map<String, int> _quantities = {}; // Melacak jumlah kuantitas produk
   double _totalPrice = 0.0;
-  String searchQuery = ""; // Tambahkan variabel untuk pencarian
+  String searchQuery = ""; // Variabel untuk pencarian produk
 
   void _updateTotalPrice(List<QueryDocumentSnapshot> products) {
     double total = 0.0;
@@ -33,7 +35,11 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> _updateStockAfterPayment() async {
     final batch = firestore.batch();
     _quantities.forEach((productId, quantity) {
-      final productRef = firestore.collection('products').doc(productId);
+      final productRef = firestore
+          .collection('users')
+          .doc(widget.userId)
+          .collection('products')
+          .doc(productId);
       batch.update(productRef, {
         'stock': FieldValue.increment(-quantity),
       });
@@ -42,7 +48,7 @@ class _SalesPageState extends State<SalesPage> {
     try {
       await batch.commit();
       setState(() {
-        _quantities.clear(); // Reset jumlah kuantitas setelah pembayaran
+        _quantities.clear(); // Reset kuantitas produk setelah pembayaran
         _totalPrice = 0.0;
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +71,8 @@ class _SalesPageState extends State<SalesPage> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                  builder: (context) => HomePage()), // Kembali ke HomePage
+                builder: (context) => HomePage(userId: widget.userId),
+              ),
               (route) => false,
             );
           },
@@ -84,33 +91,30 @@ class _SalesPageState extends State<SalesPage> {
       ),
       body: Column(
         children: [
-          // TextField untuk Pencarian
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: TextField(
               onChanged: (value) {
                 setState(() {
-                  searchQuery =
-                      value.toLowerCase(); // Simpan pencarian dalam lowercase
+                  searchQuery = value.toLowerCase(); // Menyimpan pencarian
                 });
               },
               decoration: InputDecoration(
                 hintText: "Cari produk kamu di sini",
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.grey,
-                  fontSize: 14, // Ukuran font placeholder lebih kecil
+                  fontSize: 14,
                 ),
                 prefixIcon: Icon(
                   Icons.search,
                   color: Colors.grey,
-                  size: 20, // Ukuran ikon diperkecil
+                  size: 20,
                 ),
                 filled: true,
                 fillColor: Colors.grey.shade200,
                 contentPadding: EdgeInsets.symmetric(
-                  vertical: 10, // Kurangi tinggi padding
-                  horizontal: 12, // Kurangi padding horizontal
+                  vertical: 10,
+                  horizontal: 12,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -121,7 +125,11 @@ class _SalesPageState extends State<SalesPage> {
           ),
           Expanded(
             child: StreamBuilder(
-              stream: firestore.collection('products').snapshots(),
+              stream: firestore
+                  .collection('users')
+                  .doc(widget.userId)
+                  .collection('products')
+                  .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -155,11 +163,9 @@ class _SalesPageState extends State<SalesPage> {
                   );
                 }
 
-                // Filter produk berdasarkan searchQuery
                 final filteredProducts = snapshot.data!.docs.where((product) {
                   final name = product['name'].toString().toLowerCase();
-                  return name
-                      .contains(searchQuery); // Filter berdasarkan nama produk
+                  return name.contains(searchQuery);
                 }).toList();
 
                 if (filteredProducts.isEmpty) {
@@ -286,24 +292,20 @@ class _SalesPageState extends State<SalesPage> {
                                               255,
                                               125,
                                               163,
-                                              237), // Warna latar biru pastel
-                                          foregroundColor:
-                                              Colors.white, // Warna teks putih
-                                          minimumSize: Size(10,
-                                              10), // Ukuran tombol lebih kecil
+                                              237),
+                                          foregroundColor: Colors.white,
+                                          minimumSize: Size(10, 10),
                                           padding: EdgeInsets.symmetric(
-                                              horizontal: 11,
-                                              vertical: 7), // Padding tombol
+                                              horizontal: 11, vertical: 7),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                8), // Radius tidak terlalu bundar
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
                                         ),
                                         child: Text(
                                           "Tambah",
                                           style: GoogleFonts.poppins(
-                                            fontSize:
-                                                11, // Ukuran teks sedikit lebih kecil
+                                            fontSize: 11,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -362,7 +364,11 @@ class _SalesPageState extends State<SalesPage> {
             ),
           ),
           StreamBuilder(
-            stream: firestore.collection('products').snapshots(),
+            stream: firestore
+                .collection('users')
+                .doc(widget.userId)
+                .collection('products')
+                .snapshots(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (!snapshot.hasData) return SizedBox();
               var products = snapshot.data!.docs;
@@ -411,6 +417,7 @@ class _SalesPageState extends State<SalesPage> {
                               builder: (context) => PaymentPage(
                                 totalAmount: _totalPrice,
                                 items: selectedItems,
+                                userId: widget.userId, // Tambahkan userId
                               ),
                             ),
                           );
@@ -420,23 +427,19 @@ class _SalesPageState extends State<SalesPage> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Color.fromARGB(255, 98, 193, 99), // Warna latar biru pastel
-                          foregroundColor: Colors.white, // Warna teks putih
-                          minimumSize: Size(80,
-                              20), // Ukuran tombol sedikit lebih besar dari "Tambah"
+                          backgroundColor: Color.fromARGB(255, 98, 193, 99),
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(80, 20),
                           padding: EdgeInsets.symmetric(
-                              horizontal: 13, vertical: 8), // Padding tombol
+                              horizontal: 13, vertical: 8),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                8), // Radius tidak terlalu bundar
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: Text(
                           "Bayar",
                           style: GoogleFonts.poppins(
-                            fontSize:
-                                13, // Ukuran teks sama seperti tombol "Tambah"
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

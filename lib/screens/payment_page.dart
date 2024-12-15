@@ -9,8 +9,13 @@ import 'package:printing/printing.dart';
 class PaymentPage extends StatefulWidget {
   final double totalAmount;
   final List<Map<String, dynamic>> items;
+  final String userId; // Tambahkan userId
 
-  PaymentPage({required this.totalAmount, required this.items});
+  PaymentPage({
+    required this.totalAmount,
+    required this.items,
+    required this.userId, // Tambahkan userId di sini
+  });
 
   @override
   _PaymentPageState createState() => _PaymentPageState();
@@ -46,7 +51,11 @@ class _PaymentPageState extends State<PaymentPage> {
 
     try {
       // Simpan data pembayaran ke koleksi 'payments'
-      await firestore.collection('payments').add({
+      await firestore
+          .collection('users')
+          .doc(widget.userId)
+          .collection('payments')
+          .add({
         'customerName': _customerNameController.text.isNotEmpty
             ? _customerNameController.text
             : "Tidak Diketahui",
@@ -64,14 +73,23 @@ class _PaymentPageState extends State<PaymentPage> {
       });
 
       // Simpan data ke koleksi 'wallet'
-      await firestore.collection('wallet').add({
+      await firestore
+          .collection('users')
+          .doc(widget.userId)
+          .collection('wallet')
+          .add({
         'amount': widget.totalAmount,
         'timestamp': Timestamp.now(),
       });
 
-      // Simpan data ke koleksi 'product_history'
+// Simpan data ke koleksi 'product_history'
       for (var item in widget.items) {
-        await firestore.collection('product_history').add({
+        await firestore
+            .collection('users')
+            .doc(widget.userId) // Gunakan userId untuk spesifik pengguna
+            .collection(
+                'product_history') // Simpan ke subkoleksi 'product_history'
+            .add({
           'type': 'sale',
           'name': item['name'],
           'quantitySold': item['quantity'],
@@ -83,13 +101,19 @@ class _PaymentPageState extends State<PaymentPage> {
           'timestamp': Timestamp.now(),
         });
       }
-
       // Perbarui stok produk di Firestore
       final batch = firestore.batch();
       for (var item in widget.items) {
-        final productRef = firestore.collection('products').doc(item['id']);
+        if (item['id'] == null || item['id'].isEmpty) {
+          throw Exception('ID produk tidak valid: ${item['id']}');
+        }
+        final productRef = firestore
+            .collection('users')
+            .doc(widget.userId)
+            .collection('products')
+            .doc(item['id']);
         batch.update(productRef, {
-          'stock': FieldValue.increment(-item['quantity']), // Kurangi stok
+          'stock': FieldValue.increment(-item['quantity']),
         });
       }
       await batch.commit(); // Eksekusi pembaruan stok
@@ -99,44 +123,52 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _generatePDF() async {
-  final pdf = pw.Document();
+    final pdf = pw.Document();
 
-  pdf.addPage(
-    pw.Page(
-      build: (context) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text("Toko Sinyo",
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
-          pw.Divider(),
-          pw.Text("Atas Nama: ${_customerNameController.text.isEmpty ? "Tidak Diketahui" : _customerNameController.text}"),
-          pw.Text("Tanggal: ${DateFormat('dd MMM yyyy').format(DateTime.now())}"),
-          pw.Text("Pembayaran: Tunai"),
-          pw.Divider(),
-          pw.Text("Detail Pemesanan:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          ...widget.items.map((item) {
-            return pw.Text("${item['name']} x ${item['quantity']} - Rp${NumberFormat('#,###', 'id_ID').format(item['price'] * item['quantity'])}");
-          }).toList(),
-          pw.Divider(),
-          pw.Text("Total Pesanan: Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}"),
-          pw.Text("Bayar: Rp${NumberFormat('#,###', 'id_ID').format(double.tryParse(_amountController.text) ?? 0.0)}"),
-          pw.Text("Kembalian: Rp${NumberFormat('#,###', 'id_ID').format(_change)}"),
-          pw.Divider(),
-          pw.Center(
-            child: pw.Text(
-              "Terima Kasih\nSudah Berbelanja di Toko Kami",
-              textAlign: pw.TextAlign.center,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+    pdf.addPage(
+      pw.Page(
+        build: (context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text("Toko Sinyo",
+                style:
+                    pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18)),
+            pw.Divider(),
+            pw.Text(
+                "Atas Nama: ${_customerNameController.text.isEmpty ? "Tidak Diketahui" : _customerNameController.text}"),
+            pw.Text(
+                "Tanggal: ${DateFormat('dd MMM yyyy').format(DateTime.now())}"),
+            pw.Text("Pembayaran: Tunai"),
+            pw.Divider(),
+            pw.Text("Detail Pemesanan:",
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            ...widget.items.map((item) {
+              return pw.Text(
+                  "${item['name']} x ${item['quantity']} - Rp${NumberFormat('#,###', 'id_ID').format(item['price'] * item['quantity'])}");
+            }).toList(),
+            pw.Divider(),
+            pw.Text(
+                "Total Pesanan: Rp${NumberFormat('#,###', 'id_ID').format(widget.totalAmount)}"),
+            pw.Text(
+                "Bayar: Rp${NumberFormat('#,###', 'id_ID').format(double.tryParse(_amountController.text) ?? 0.0)}"),
+            pw.Text(
+                "Kembalian: Rp${NumberFormat('#,###', 'id_ID').format(_change)}"),
+            pw.Divider(),
+            pw.Center(
+              child: pw.Text(
+                "Terima Kasih\nSudah Berbelanja di Toko Kami",
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
 
-  // Tampilkan dialog print/save
-  await Printing.layoutPdf(onLayout: (format) => pdf.save());
-}
+    // Tampilkan dialog print/save
+    await Printing.layoutPdf(onLayout: (format) => pdf.save());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -401,24 +433,31 @@ class _PaymentPageState extends State<PaymentPage> {
                                 actions: [
                                   ElevatedButton(
                                     onPressed: () {
-                                      Navigator.popUntil(context, (route) => route.isFirst);
+                                      Navigator.popUntil(
+                                          context, (route) => route.isFirst);
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => SalesPage(),
+                                          builder: (context) => SalesPage(
+                                            userId: widget
+                                                .userId, // Tambahkan userId di sini
+                                          ),
                                         ),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(255, 238, 115, 106),
-                                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 238, 115, 106),
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 20),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
                                     child: Text(
                                       "Tutup",
-                                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.white, fontSize: 14),
                                     ),
                                   ),
                                   ElevatedButton(
@@ -427,15 +466,18 @@ class _PaymentPageState extends State<PaymentPage> {
                                       await _generatePDF();
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(255, 119, 158, 238),
-                                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 119, 158, 238),
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 20),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
                                     child: Text(
                                       "Cetak",
-                                      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.white, fontSize: 14),
                                     ),
                                   ),
                                 ],
