@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                     child: Center(
                       child: Text(
                         "Data tidak ditemukan",
-                        style: GoogleFonts.poppins(color: Colors.white),
+                        style: GoogleFonts.poppins(color: const Color.fromARGB(255, 255, 255, 255)),
                       ),
                     ),
                   );
@@ -136,7 +136,7 @@ class _HomePageState extends State<HomePage> {
                             padding: EdgeInsets.symmetric(
                                 vertical: 5, horizontal: 10),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: const Color.fromARGB(255, 255, 255, 255),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -408,8 +408,8 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFFFFFFFF),
-                      Color.fromARGB(255, 190, 207, 253)
+                      Color.fromARGB(255, 255, 255, 255),
+                      Color.fromARGB(255, 255, 255, 255)
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -615,7 +615,7 @@ class _HomePageState extends State<HomePage> {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color.fromARGB(255, 245, 242, 242),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(

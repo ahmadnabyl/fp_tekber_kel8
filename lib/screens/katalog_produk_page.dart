@@ -52,7 +52,7 @@ class _KatalogProdukPageState extends State<KatalogProdukPage> {
           gradient: LinearGradient(
             colors: [
               Color(0xFFFFFFFF),
-              Color.fromARGB(255, 190, 207, 253),
+              Color.fromARGB(255, 255, 255, 255),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -121,7 +121,7 @@ class _DropdownItemState extends State<DropdownItem> {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 245, 245, 245),
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(

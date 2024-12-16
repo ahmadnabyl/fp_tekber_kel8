@@ -42,7 +42,7 @@ class DompetPage extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               Color(0xFFFFFFFF), // Warna putih
-              Color.fromARGB(255, 190, 207, 253), // Warna biru muda
+              Color.fromARGB(255, 255, 255, 255), // Warna biru muda
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -104,7 +104,7 @@ class DropdownItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 244, 244, 244),
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(

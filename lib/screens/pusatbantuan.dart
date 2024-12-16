@@ -19,7 +19,7 @@ class PusatBantuan extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 4.0,
         leading: IconButton(
           icon: Icon(Icons.close, color: const Color(0xFF6F92D8)),
@@ -34,7 +34,7 @@ class PusatBantuan extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               Color(0xFFFFFFFF),
-              Color.fromARGB(255, 190, 207, 253),
+              Color.fromARGB(255, 255, 255, 255),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -142,7 +142,7 @@ class HelpButton extends StatelessWidget {
         margin: EdgeInsets.symmetric(vertical: 8),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255), // Warna background box
+          color: const Color.fromARGB(255, 244, 244, 244), // Warna background box
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(

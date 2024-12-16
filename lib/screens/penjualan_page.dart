@@ -52,7 +52,7 @@ class _PenjualanPageState extends State<PenjualanPage> {
           gradient: LinearGradient(
             colors: [
               Color(0xFFFFFFFF),
-              Color.fromARGB(255, 190, 207, 253),
+              Color.fromARGB(255, 255, 255, 255),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -117,7 +117,7 @@ class SaleDropdownItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 244, 244, 244),
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(
